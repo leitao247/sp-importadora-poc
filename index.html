@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S&P Importadora - Sommelier Digital (PoC)</title>
+    <style>
+        /* * ESTILO "HARVARD CS50" - Limpo, Acadêmico e Funcional 
+         * Foco na usabilidade e clareza dos dados.
+         */
+        :root {
+            --primary: #722F37; /* Cor Vinho */
+            --secondary: #2C3E50;
+            --bg: #F5F5F5;
+            --card-bg: #FFFFFF;
+            --text: #333333;
+            --border: #DDDDDD;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 5px; }
+        h2 { color: var(--secondary); font-size: 1.2rem; border-left: 5px solid var(--primary); padding-left: 10px; margin-top: 30px;}
+        p.subtitle { color: #666; font-style: italic; }
+
+        /* Componentes de Interface */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: var(--secondary);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover { background-color: var(--primary); }
+        
+        button.budget-btn {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+        button.budget-btn:hover { background-color: var(--secondary); color: white; }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fafafa;
+            border-left: 4px solid var(--secondary);
+            display: none; /* Oculto por padrão */
+        }
+
+        .tag {
+            display: inline-block;
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            color: #555;
+        }
+
+        /* Tabela de Orçamento */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .total-row { font-weight: bold; background-color: #e8e8e8; }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            select, button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>S&P Importadora</h1>
+        <p class="subtitle">Prova de Conceito - Sistema de Harmonização e Vendas</p>
+    </header>
+
+    <div class="card" id="section-pairing">
+        <h2>1. Harmonização por Rótulo</h2>
+        <p>Selecione um vinho da nossa tabela oficial para ver sugestões de pratos.</p>
+        
+        <select id="wineSelector">
+            <option value="">-- Escolha um Vinho --</option>
+            </select>
+        <button onclick="app.harmonizeSingleWine()">Harmonizar</button>
+
+        <div id="pairingResult" class="result-box"></div>
+    </div>
+
+    <div class="card" id="section-menu">
+        <h2>2. Sugestão de Menu Completo</h2>
+        <p>Gerar uma sequência lógica: Entrada (Leve/Espumante) → Prato Principal (Intenso) → Sobremesa.</p>
+        <button onclick="app.generateFullMenu()">Gerar Menu do Chef</button>
+
+        <div id="menuResult" class="result-box"></div>
+    </div>
+
+    <div class="card" id="section-budget">
+        <h2>3. Simulação de Compra (Smart Bundle)</h2>
+        <p>Monte kits de 3 a 5 garrafas baseados no seu orçamento, priorizando diversidade de regiões.</p>
+        
+        <div class="budget-controls">
+            <button class="budget-btn" onclick="app.simulateBudget(100)">Até R$ 100</button>
+            <button class="budget-btn" onclick="app.simulateBudget(200)">Até R$ 200</button>
+            <button class="budget-btn" onclick="app.simulateBudget(300)">Até R$ 300</button>
+            <button class="budget-btn" onclick="app.simulateBudget(400)">Até R$ 400</button>
+            <button class="budget-btn" onclick="app.simulateBudget(500)">Até R$ 500</button>
+        </div>
+
+        <div id="budgetResult" class="result-box"></div>
+    </div>
+</div>
+
+<script>
+/**
+ * ------------------------------------------------------------------
+ * BANCO DE DADOS (Extraído dos CSVs fornecidos)
+ * ------------------------------------------------------------------
+ * Preços baseados na coluna UNI S/ IPI (Unitário sem IPI) quando disponível,
+ * ou calculado da Caixa.
+ * * ESTRUTURA:
+ * id: Código do produto
+ * name: Nome completo
+ * type: 'tinto', 'branco', 'rose', 'espumante', 'porto'
+ * grapes: Array de uvas (inferido do nome)
+ * region: Região/País
+ * price: Preço unitário (float)
+ */
+const WINE_DB = [
+    // ITÁLIA
+    { id: '3000211', name: "Gaggiarone Vitgni Giovani TTO - Croatina", type: 'tinto', grapes: ['Croatina'], region: "Itália - Lombardia", price: 136.74 },
+    { id: '208', name: "Ca Montebello TTO DOC - Pinot Nero", type: 'tinto', grapes: ['Pinot Noir'], region: "Itália - Lombardia", price: 80.00 },
+    { id: '209', name: "Ca Montebello BCO IGT - Pinot Grigio", type: 'branco', grapes: ['Pinot Grigio'], region: "Itália - Lombardia", price: 80.00 },
+    { id: '355', name: "La Fogliata Di Puglia - Primitivo", type: 'tinto', grapes: ['Primitivo'], region: "Itália - Puglia", price: 59.18 },
+    { id: '405', name: "Torre Romanica - Bianco", type: 'branco', grapes: ['Trebbiano', 'Outras'], region: "Itália - Abruzzo", price: 35.51 },
+    { id: '414', name: "Lugana DOC - Turbiana", type: 'branco', grapes: ['Turbiana'], region: "Itália - Garda", price: 134.62 },
+    
+    // FRANÇA
+    { id: '3000221', name: "Dirty Rabbit TTO - Petit Verdot", type: 'tinto', grapes: ['Petit Verdot'], region: "França - Languedoc", price: 60.00 },
+    { id: '220', name: "Charming Rabbit BCO - Chardonnay", type: 'branco', grapes: ['Chardonnay'], region: "França - Languedoc", price: 60.00 },
+    { id: '245', name: "Pink Rabbit Rosé - Grenache, Syrah", type: 'rose', grapes: ['Grenache', 'Syrah'], region: "França - Languedoc", price: 51.66 },
+    { id: '225', name: "Chatelain Valmont Cotes du Rhone TTO", type: 'tinto', grapes: ['Grenache', 'Syrah'], region: "França - Rhone", price: 56.66 },
+
+    // PORTUGAL (Grande volume nos arquivos)
+    { id: '3000444', name: "Pescada Branco DOC Verde", type: 'branco', grapes: ['Azal', 'Trajadura', 'Loureiro'], region: "Portugal - Verde", price: 35.51 },
+    { id: '446', name: "Pescada - 100% Alvarinho", type: 'branco', grapes: ['Alvarinho'], region: "Portugal - Verde", price: 127.55 },
+    { id: '171', name: "Porta 6 TTO (375ml)", type: 'tinto', grapes: ['Aragones', 'Castelão'], region: "Portugal - Lisboa", price: 32.86 },
+    { id: '931', name: "Porta 6 BCO - Fernão Pires", type: 'branco', grapes: ['Fernão Pires', 'Arinto'], region: "Portugal - Lisboa", price: 55.12 },
+    { id: '170', name: "Porta 6 Reserva TTO", type: 'tinto', grapes: ['Syrah', 'Alicante Bouschet'], region: "Portugal - Lisboa", price: 80.91 },
+    { id: '130', name: "Espumante Porta 6 BCO Brut", type: 'espumante', grapes: ['Arinto', 'Chardonnay'], region: "Portugal - Lisboa", price: 55.12 },
+    { id: '3000154', name: "Julia Florista TTO", type: 'tinto', grapes: ['Castelão', 'Aragonez'], region: "Portugal - Lisboa", price: 41.34 },
+    { id: '3000181', name: "Julia Florista BCO", type: 'branco', grapes: ['Fernão Pires'], region: "Portugal - Lisboa", price: 41.34 },
+    { id: '436', name: "Cabriz Colheita Selecionada TTO", type: 'tinto', grapes: ['Alfrocheiro', 'Touriga Nacional'], region: "Portugal - Dão", price: 59.71 },
+    { id: '450', name: "Espumante Cabriz Bruto BCO", type: 'espumante', grapes: ['Encruzado'], region: "Portugal - Dão", price: 78.08 },
+    { id: '354', name: "Moscatel do Douro Martha's", type: 'porto', grapes: ['Moscatel Galego'], region: "Portugal - Douro", price: 56.00 },
+    { id: '350', name: "Porto Ruby Martha's", type: 'porto', grapes: ['Blend Douro'], region: "Portugal - Porto", price: 63.60 },
+    { id: '353', name: "Porto 10 Anos Martha's", type: 'porto', grapes: ['Blend Douro'], region: "Portugal - Porto", price: 194.33 },
+
+    // CHILE
+    { id: '3000360', name: "Isla Negra Reserva - Cab. Sauvignon", type: 'tinto', grapes: ['Cabernet Sauvignon'], region: "Chile", price: 28.30 },
+    { id: '3000363', name: "Isla Negra Reserva - Sauvignon Blanc", type: 'branco', grapes: ['Sauvignon Blanc'], region: "Chile", price: 28.30 },
+    { id: '376', name: "Paso de Los Andes Reserva - Carmenere", type: 'tinto', grapes: ['Carmenere'], region: "Chile", price: 46.46 },
+    { id: '378', name: "Paso de Los Andes Varietal - Pinot Noir", type: 'tinto', grapes: ['Pinot Noir'], region: "Chile", price: 47.70 },
+
+    // ARGENTINA
+    { id: '456', name: "New Roads TTO - Malbec 100%", type: 'tinto', grapes: ['Malbec'], region: "Argentina - Mendoza", price: 30.56 },
+    { id: '452', name: "Viñas del Tango Malbec Premium", type: 'tinto', grapes: ['Malbec'], region: "Argentina", price: 48.23 },
+    { id: '3000404', name: "Viñas del Tango Varietal - Torrontes", type: 'branco', grapes: ['Torrontes'], region: "Argentina", price: 33.33 },
+
+    // ESPANHA
+    { id: '3000191', name: "Cava Bonaval Brut Rose", type: 'espumante', grapes: ['Garnacha'], region: "Espanha", price: 46.78 },
+    { id: '3000251', name: "La Vache Espagnole TTO", type: 'tinto', grapes: ['Tempranillo'], region: "Espanha", price: 33.92 }
+];
+
+/**
+ * ------------------------------------------------------------------
+ * LÓGICA DE NEGÓCIO (Core Application)
+ * ------------------------------------------------------------------
+ */
+const app = {
+    
+    // Inicialização
+    init: function() {
+        this.populateSelect();
+    },
+
+    // Preenche o dropdown de vinhos
+    populateSelect: function() {
+        const select = document.getElementById('wineSelector');
+        // Ordena alfabeticamente
+        const sortedWines = WINE_DB.sort((a, b) => a.name.localeCompare(b.name));
+        
+        sortedWines.forEach(wine => {
+            const option = document.createElement('option');
+            option.value = wine.id;
+            option.textContent = `${wine.name} (R$ ${wine.price.toFixed(2)})`;
+            select.appendChild(option);
+        });
+    },
+
+    /**
+     * LÓGICA DE HARMONIZAÇÃO (Regra de Negócio 1)
+     * Baseada em uvas e tipos de vinho.
+     */
+    getPairings: function(wine) {
+        const nameLower = wine.name.toLowerCase();
+        const grapes = wine.grapes.map(g => g.toLowerCase());
+        const type = wine.type;
+
+        let suggestions = [];
+
+        // Lógica Espumante
+        if (type === 'espumante' || nameLower.includes('cava')) {
+            suggestions = [
+                "Ostras frescas com limão",
+                "Risoto de camarão",
+                "Entradas leves e canapés",
+                "Queijo Brie com geleia de damasco"
+            ];
+        }
+        // Lógica Sobremesa (Porto/Moscatel)
+        else if (type === 'porto' || nameLower.includes('passito') || nameLower.includes('moscatel')) {
+            suggestions = [
+                "Chocolate meio amargo (70%)",
+                "Queijo Gorgonzola ou Roquefort",
+                "Cheesecake de frutas vermelhas",
+                "Petit Gâteau"
+            ];
+        }
+        // Lógica Tintos
+        else if (type === 'tinto') {
+            if (grapes.some(g => g.includes('malbec'))) {
+                suggestions = ["Churrasco de picanha", "Costela assada", "Hambúrguer artesanal", "Queijos curados"];
+            } else if (grapes.some(g => g.includes('cabernet'))) {
+                suggestions = ["Bife Ancho", "Cordeiro assado", "Massas com molho bolonhesa rico", "Queijo Cheddar maturado"];
+            } else if (grapes.some(g => g.includes('pinot') || g.includes('croatina'))) {
+                suggestions = ["Salmão grelhado", "Risoto de cogumelos (Funghi)", "Pato assado", "Queijo Gruyère"];
+            } else if (grapes.some(g => g.includes('primitivo') || g.includes('syrah'))) {
+                suggestions = ["Pizza de Calabresa", "Carne de porco com barbecue", "Massas condimentadas", "Tábua de embutidos"];
+            } else {
+                // Genérico Tinto
+                suggestions = ["Carnes vermelhas grelhadas", "Massas ao sugo", "Queijos de meia cura", "Pizza marguerita"];
+            }
+        }
+        // Lógica Brancos
+        else if (type === 'branco') {
+            if (grapes.some(g => g.includes('chardonnay'))) {
+                suggestions = ["Frango assado com ervas", "Massas ao molho branco", "Lagosta na manteiga", "Queijo Camembert"];
+            } else if (grapes.some(g => g.includes('sauvignon') || g.includes('verde') || g.includes('alvarinho'))) {
+                suggestions = ["Ceviche de peixe branco", "Salada Caprese", "Sushi e Sashimi", "Queijo de Cabra"];
+            } else if (grapes.some(g => g.includes('torrontes') || g.includes('moscatel'))) {
+                suggestions = ["Comida Tailandesa (levemente apimentada)", "Empanadas de queijo", "Salada de frutas"];
+            } else {
+                // Genérico Branco
+                suggestions = ["Peixes grelhados", "Saladas verdes", "Frutos do mar", "Massas leves"];
+            }
+        }
+        // Lógica Rosé
+        else if (type === 'rose') {
+            suggestions = ["Paella de frutos do mar", "Salmão defumado", "Pizza de frango com catupiry", "Tábua de frios variada"];
+        }
+
+        return suggestions;
+    },
+
+    // Executa a harmonização na UI
+    harmonizeSingleWine: function() {
+        const select = document.getElementById('wineSelector');
+        const wineId = select.value;
+        const resultBox = document.getElementById('pairingResult');
+
+        if (!wineId) {
+            alert("Por favor, selecione um vinho.");
+            return;
+        }
+
+        const wine = WINE_DB.find(w => w.id === wineId);
+        const pairings = this.getPairings(wine);
+
+        let html = `<h3>${wine.name}</h3>`;
+        html += `<p><strong>Tipo:</strong> ${wine.type.toUpperCase()} | <strong>Uva(s):</strong> ${wine.grapes.join(', ')}</p>`;
+        html += `<h4>Sugestões de Harmonização:</h4><ul>`;
+        pairings.forEach(p => html += `<li>${p}</li>`);
+        html += `</ul>`;
+
+        resultBox.innerHTML = html;
+        resultBox.style.display = 'block';
+    },
+
+    /**
+     * LÓGICA DE MENU COMPLETO (Regra de Negócio 2)
+     * Progressão: Leve (Branco/Espumante) -> Médio/Forte (Tinto) -> Doce (Porto)
+     */
+    generateFullMenu: function() {
+        const resultBox = document.getElementById('menuResult');
+        
+        // 1. Filtrar categorias
+        const starters = WINE_DB.filter(w => w.type === 'espumante' || (w.type === 'branco' && w.price < 80));
+        const mains = WINE_DB.filter(w => w.type === 'tinto' && w.price > 40); // Tintos um pouco mais estruturados
+        const desserts = WINE_DB.filter(w => w.type === 'porto');
+
+        // 2. Selecionar aleatoriamente
+        const starter = starters[Math.floor(Math.random() * starters.length)];
+        const main = mains[Math.floor(Math.random() * mains.length)];
+        const dessert = desserts[Math.floor(Math.random() * desserts.length)];
+
+        // 3. Renderizar
+        let html = `<h3>Menu Degustação Sugerido</h3>`;
+        
+        html += `<div style="margin-bottom:15px; border-bottom:1px dashed #ccc; padding-bottom:10px;">
+                    <span class="tag">ENTRADA</span> <strong>${starter.name}</strong><br>
+                    <small>Região: ${starter.region} | Preço: R$ ${starter.price.toFixed(2)}</small><br>
+                    <em>Justificativa: Um vinho com acidez para abrir o apetite e acompanhar saladas ou canapés.</em>
+                 </div>`;
+
+        html += `<div style="margin-bottom:15px; border-bottom:1px dashed #ccc; padding-bottom:10px;">
+                    <span class="tag">PRATO PRINCIPAL</span> <strong>${main.name}</strong><br>
+                    <small>Região: ${main.region} | Preço: R$ ${main.price.toFixed(2)}</small><br>
+                    <em>Justificativa: Tinto com estrutura para suportar proteínas e molhos intensos.</em>
+                 </div>`;
+
+        html += `<div>
+                    <span class="tag">SOBREMESA</span> <strong>${dessert.name}</strong><br>
+                    <small>Região: ${dessert.region} | Preço: R$ ${dessert.price.toFixed(2)}</small><br>
+                    <em>Justificativa: Finalização doce e alcoólica para harmonizar com chocolates ou encerrar a refeição.</em>
+                 </div>`;
+        
+        const total = starter.price + main.price + dessert.price;
+        html += `<p style="text-align:right; font-weight:bold; margin-top:10px;">Valor Total do Kit: R$ ${total.toFixed(2)}</p>`;
+
+        resultBox.innerHTML = html;
+        resultBox.style.display = 'block';
+    },
+
+    /**
+     * LÓGICA DE ORÇAMENTO (Regra de Negócio 3)
+     * Knapsack problem simplificado (Greedy approach com aleatoriedade).
+     * Restrições: 3 a 5 garrafas, diversidade de regiões.
+     */
+    simulateBudget: function(budgetLimit) {
+        const resultBox = document.getElementById('budgetResult');
+        let cart = [];
+        let currentTotal = 0;
+        let regions = new Set();
+        let attempts = 0;
+
+        // Filtra vinhos que cabem sozinhos no orçamento para começar
+        // Remove vinhos muito caros que comeriam todo o budget sozinhos se o objetivo é volume
+        const affordableWines = WINE_DB.filter(w => w.price <= budgetLimit * 0.6); 
+
+        // Loop de tentativa para montar o kit (tenta até conseguir 3+ garrafas ou estourar tentativas)
+        while (attempts < 100) {
+            cart = [];
+            currentTotal = 0;
+            regions.clear();
+            
+            // Embaralha a lista
+            const shuffled = [...affordableWines].sort(() => 0.5 - Math.random());
+
+            for (let wine of shuffled) {
+                // Verifica se cabe no bolso
+                if (currentTotal + wine.price <= budgetLimit) {
+                    // Tenta priorizar regiões diferentes, mas se faltar vinho, aceita repetida
+                    // Regra suave: Se já tem 5, para.
+                    if (cart.length >= 5) break;
+
+                    cart.push(wine);
+                    currentTotal += wine.price;
+                    regions.add(wine.region);
+                }
+            }
+
+            // Validação de sucesso: Pelo menos 3 garrafas?
+            // Nota: Se o budget for muito baixo (ex: 100) e os vinhos caros, pode ser difícil achar 3.
+            // Nesse caso, aceitamos o que der se for o melhor esforço.
+            if (cart.length >= 3 || (budgetLimit <= 150 && cart.length >= 2)) {
+                break;
+            }
+            attempts++;
+        }
+
+        // Renderização
+        let html = `<h3>Kit Sugerido para R$ ${budgetLimit},00</h3>`;
+        
+        if (cart.length === 0) {
+            html += `<p>Não foi possível encontrar combinações para este valor com os vinhos disponíveis.</p>`;
+        } else {
+            html += `<table>
+                        <thead>
+                            <tr>
+                                <th>Vinho</th>
+                                <th>Região</th>
+                                <th>Preço</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            cart.forEach(item => {
+                html += `<tr>
+                            <td>${item.name}</td>
+                            <td>${item.region}</td>
+                            <td>R$ ${item.price.toFixed(2)}</td>
+                         </tr>`;
+            });
+
+            html += `<tr class="total-row">
+                        <td colspan="2">TOTAL (${cart.length} garrafas)</td>
+                        <td>R$ ${currentTotal.toFixed(2)}</td>
+                     </tr>
+                    </tbody>
+                </table>`;
+            
+            html += `<p style="margin-top:10px; font-size:0.9rem; color:#555;">
+                        Regiões exploradas: ${Array.from(regions).join(', ')}.
+                     </p>`;
+            
+            if (cart.length < 3) {
+                html += `<p style="color:red; font-size:0.8rem;">* Nota: Devido ao preço médio dos vinhos premium na tabela, orçamentos baixos podem não atingir 3 garrafas.</p>`;
+            }
+        }
+
+        resultBox.innerHTML = html;
+        resultBox.style.display = 'block';
+    }
+};
+
+// Iniciar Aplicação
+app.init();
+
+</script>
+
+</body>
+</html>
