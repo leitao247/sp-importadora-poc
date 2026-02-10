@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S&P Importadora - Sommelier Digital (Brasil)</title>
+    <title>S&P Importadora - Sommelier Digital (v4.3)</title>
     <style>
-        /* ESTILO "CLEAN & CORPORATE" */
+        /* ESTILO "IVY LEAGUE" - Focado em Vendas e Experiência */
         :root {
-            --primary: #722F37; /* Vinho Tinto */
-            --secondary: #2C3E50; /* Azul Petróleo */
-            --accent: #D4AF37; /* Dourado */
+            --primary: #722F37; /* Merlot */
+            --secondary: #2C3E50; /* Slate */
+            --accent: #D4AF37; /* Gold */
             --bg: #F5F5F5;
             --card-bg: #FFFFFF;
             --text: #333333;
             --border: #DDDDDD;
+            --price-color: #27ae60;
+            --dish-color: #e67e22; /* Laranja para comida */
         }
 
         body {
@@ -36,7 +38,6 @@
 
         h1 { color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         
-        /* Badges e Títulos */
         h2 { 
             color: var(--secondary); 
             font-size: 1.3rem; 
@@ -57,7 +58,6 @@
             text-transform: uppercase;
         }
 
-        /* Cartões */
         .card {
             background: var(--card-bg);
             padding: 25px;
@@ -67,7 +67,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Inputs e Botões */
         select, button {
             padding: 12px 15px;
             border-radius: 6px;
@@ -97,7 +96,6 @@
         }
         button.budget-btn:hover { background-color: var(--secondary); color: white; }
 
-        /* Áreas de Resultado */
         .result-box {
             margin-top: 20px;
             padding: 20px;
@@ -120,44 +118,115 @@
             font-weight: 600;
         }
 
-        /* Tabela Visual */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: var(--secondary); font-weight: 600; }
-        .total-row { font-weight: bold; background-color: #eef2f5; }
-
-        /* Estilo da Ponte (Bridge) */
-        .bridge-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .wine-box {
-            flex: 1;
-            min-width: 200px;
+        /* GRID SYSTEM PARA WINE BRIDGING */
+        .source-wine-display {
             text-align: center;
             padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
             border-radius: 8px;
+            margin-bottom: 20px;
         }
-        .wine-box.source { background: #f8f9fa; border: 1px solid #dee2e6; }
-        .wine-box.target { background: #e8f4fd; border: 1px solid #b6d4fe; }
-        .arrow { font-size: 2rem; color: var(--secondary); }
+
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .suggestion-card {
+            background: white;
+            border: 1px solid #b6d4fe;
+            border-radius: 8px;
+            padding: 25px 15px 15px 15px;
+            text-align: center;
+            transition: transform 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .suggestion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .price-badge {
+            background-color: var(--price-color);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .rank-label {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .rank-label.premium { background: #D4AF37; }
+        .rank-label.value { background: #27ae60; }
+
+        .type-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+            margin-bottom: 5px;
+        }
 
         .match-explanation {
             font-style: italic;
             color: #555;
-            margin-top: 15px;
-            padding-top: 10px;
+            margin-top: 25px;
+            padding-top: 15px;
             border-top: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        /* ESTILOS ESPECÍFICOS DO MENU (Funcionalidade 2) */
+        .menu-course {
+            margin-bottom: 15px;
+            border-left: 4px solid var(--dish-color);
+            padding-left: 15px;
+            background: #fff3cd; /* Fundo levemente amarelado para comida */
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .dish-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #d35400;
+            display: block;
+            margin-bottom: 5px;
         }
 
-        @media (max-width: 600px) { 
-            select, button { width: 100%; } 
-            .bridge-container { flex-direction: column; }
-            .arrow { transform: rotate(90deg); }
+        .wine-pairing-suggestion {
+            font-size: 0.9rem;
+            color: #555;
         }
+
+        @media (max-width: 600px) { select, button { width: 100%; } }
     </style>
 </head>
 <body>
@@ -165,51 +234,42 @@
 <div class="container">
     <header>
         <h1>S&P IMPORTADORA</h1>
-        <p style="color:#666;">Sistema de Sommelier Digital | <span style="font-size:0.9em">Versão Brasil (R$)</span></p>
+        <p style="color:#666;">Sommelier Digital v4.3 | <span style="font-size:0.9em">Brasil (R$)</span></p>
     </header>
 
     <div class="card">
         <h2>1. Harmonização por Rótulo</h2>
-        <p>Selecione um vinho para ver sugestões de pratos brasileiros e internacionais.</p>
-        
-        <select id="wineSelector1">
-            <option value="">-- Carregando vinhos... --</option>
-        </select>
-        <button onclick="app.harmonizeSingleWine()">Ver Harmonização</button>
-
+        <p>Selecione um vinho para ver sugestões de pratos.</p>
+        <select id="wineSelector1"><option value="">-- Carregando... --</option></select>
+        <button onclick="app.harmonizeSingleWine()">Ver Pratos</button>
         <div id="pairingResult" class="result-box"></div>
     </div>
 
     <div class="card">
-        <h2>2. Menu do Chef</h2>
-        <p>Gera automaticamente uma sequência completa: Entrada → Principal → Sobremesa.</p>
-        <button onclick="app.generateFullMenu()">Gerar Menu</button>
-
+        <h2>2. Menu Gastronômico do Chef</h2>
+        <p>Gera um <strong>menu de comida</strong> completo e sugere os vinhos ideais para acompanhar.</p>
+        <button onclick="app.generateFullMenu()">Criar Jantar Harmonizado</button>
         <div id="menuResult" class="result-box"></div>
     </div>
 
     <div class="card">
-        <h2>3. Simulador de Compras (R$)</h2>
-        <p>Monte kits de 3 a 5 garrafas dentro do seu orçamento.</p>
-        
+        <h2>3. Simulador de Compras</h2>
+        <p>Kits inteligentes baseados no seu orçamento.</p>
         <div>
             <button class="budget-btn" onclick="app.simulateBudget(100)">Até R$ 100</button>
             <button class="budget-btn" onclick="app.simulateBudget(200)">Até R$ 200</button>
             <button class="budget-btn" onclick="app.simulateBudget(300)">Até R$ 300</button>
             <button class="budget-btn" onclick="app.simulateBudget(500)">Até R$ 500</button>
         </div>
-
         <div id="budgetResult" class="result-box"></div>
     </div>
 
     <div class="card" style="border-left: 5px solid var(--accent);">
-        <h2>4. Wine Bridging (Ponte entre Vinhos) <span class="new-feature">NOVO</span></h2>
-        <p>Descubra qual vinho beber <strong>antes</strong> ou <strong>depois</strong> do seu rótulo favorito.</p>
+        <h2>4. Wine Bridging (Multiopções) <span class="new-feature">NOVO</span></h2>
+        <p>Encontre até <strong>3 opções de vinho</strong> ideais para harmonizar com seu rótulo favorito.</p>
         
-        <select id="wineSelector2">
-            <option value="">-- Escolha o Vinho de Referência --</option>
-        </select>
-        <button onclick="app.pairWineWithWine()" style="background-color: var(--primary);">Encontrar o Par</button>
+        <select id="wineSelector2"><option value="">-- Escolha o Vinho de Referência --</option></select>
+        <button onclick="app.pairWineWithWine()" style="background-color: var(--primary);">Buscar Opções</button>
 
         <div id="winePairingResult" class="result-box"></div>
     </div>
@@ -217,276 +277,287 @@
 
 <script>
 /**
- * DADOS DOS VINHOS (S&P Importadora)
- * Preços em Reais (BRL)
+ * DADOS MOCK (S&P Importadora)
  */
 const WINE_DB = [
     // ITÁLIA
-    { id: '208', name: "Ca Montebello Pinot Nero (Tinto)", type: 'tinto', grapes: ['Pinot Noir'], region: "Lombardia", body: 'leve', price: 80.00 },
-    { id: '209', name: "Ca Montebello Pinot Grigio (Branco)", type: 'branco', grapes: ['Pinot Grigio'], region: "Lombardia", body: 'leve', price: 80.00 },
-    { id: '355', name: "La Fogliata Di Puglia - Primitivo", type: 'tinto', grapes: ['Primitivo'], region: "Puglia", body: 'medio', price: 59.18 },
-    { id: '414', name: "Lugana DOC - Turbiana", type: 'branco', grapes: ['Turbiana'], region: "Garda", body: 'medio', price: 134.62 },
-    { id: '412', name: "Carpino Garda DOC - Merlot", type: 'tinto', grapes: ['Merlot'], region: "Garda", body: 'medio', price: 235.32 },
+    { id: '208', name: "Ca Montebello Pinot Nero", type: 'tinto', grapes: ['Pinot Noir'], region: "Lombardia", body: 'leve', price: 80.00 },
+    { id: '412', name: "Carpino Garda DOC Merlot", type: 'tinto', grapes: ['Merlot'], region: "Garda", body: 'medio', price: 235.32 },
+    { id: '355', name: "La Fogliata Primitivo", type: 'tinto', grapes: ['Primitivo'], region: "Puglia", body: 'medio', price: 59.18 },
+    { id: '414', name: "Lugana DOC Turbiana", type: 'branco', grapes: ['Turbiana'], region: "Garda", body: 'medio', price: 134.62 },
+    { id: '3000211', name: "Gaggiarone Croatina", type: 'tinto', grapes: ['Croatina'], region: "Lombardia", body: 'encorpado', price: 136.74 },
     
     // FRANÇA
-    { id: '220', name: "Charming Rabbit - Chardonnay", type: 'branco', grapes: ['Chardonnay'], region: "Languedoc", body: 'encorpado', price: 60.00 },
-    { id: '223', name: "Mr. Rabbit - Cabernet Sauvignon", type: 'tinto', grapes: ['Cabernet Sauvignon'], region: "Languedoc", body: 'encorpado', price: 50.00 },
-    { id: '245', name: "Pink Rabbit Rosé", type: 'rose', grapes: ['Grenache', 'Syrah'], region: "Languedoc", body: 'leve', price: 51.66 },
-
-    // PORTUGAL
-    { id: '446', name: "Pescada - 100% Alvarinho", type: 'branco', grapes: ['Alvarinho'], region: "Verde", body: 'medio', price: 127.55 },
-    { id: '160', name: "Vinho Verde Porta 6 DOC", type: 'branco', grapes: ['Loureiro', 'Trajadura', 'Arinto'], region: "Verde", body: 'leve', price: 55.12 },
-    { id: '170', name: "Porta 6 Reserva Tinto", type: 'tinto', grapes: ['Syrah', 'Alicante'], region: "Lisboa", body: 'encorpado', price: 80.91 },
-    { id: '436', name: "Cabriz Colheita Selecionada Tinto", type: 'tinto', grapes: ['Alfrocheiro', 'Touriga'], region: "Dão", body: 'medio', price: 59.71 },
-    { id: '350', name: "Porto Ruby Martha's", type: 'porto', grapes: ['Blend Douro'], region: "Porto", body: 'doce', price: 63.60 },
-    { id: '354', name: "Moscatel do Douro Martha's", type: 'porto', grapes: ['Moscatel Galego'], region: "Douro", body: 'doce', price: 56.00 },
+    { id: '220', name: "Charming Rabbit Chardonnay", type: 'branco', grapes: ['Chardonnay'], region: "Languedoc", body: 'encorpado', price: 60.00 },
+    { id: '223', name: "Mr. Rabbit Cabernet", type: 'tinto', grapes: ['Cabernet Sauvignon'], region: "Languedoc", body: 'encorpado', price: 50.00 },
     
-    // CHILE & ARGENTINA
-    { id: '360', name: "Isla Negra Reserva - Cab. Sauvignon", type: 'tinto', grapes: ['Cabernet Sauvignon'], region: "Chile", body: 'medio', price: 28.30 },
-    { id: '378', name: "Paso de Los Andes - Pinot Noir", type: 'tinto', grapes: ['Pinot Noir'], region: "Chile", body: 'leve', price: 47.70 },
-    { id: '456', name: "New Roads Malbec 100%", type: 'tinto', grapes: ['Malbec'], region: "Mendoza", body: 'encorpado', price: 30.56 },
+    // PORTUGAL
+    { id: '446', name: "Pescada Alvarinho", type: 'branco', grapes: ['Alvarinho'], region: "Verde", body: 'medio', price: 127.55 },
+    { id: '160', name: "Porta 6 Verde DOC", type: 'branco', grapes: ['Loureiro'], region: "Verde", body: 'leve', price: 55.12 },
+    { id: '3000439', name: "Cabriz Rosé", type: 'rose', grapes: ['Alfrocheiro'], region: "Dão", body: 'leve', price: 59.71 },
+    { id: '170', name: "Porta 6 Reserva Tinto", type: 'tinto', grapes: ['Syrah'], region: "Lisboa", body: 'encorpado', price: 80.91 },
+    { id: '448', name: "Cabriz Touriga Nacional", type: 'tinto', grapes: ['Touriga Nacional'], region: "Dão", body: 'encorpado', price: 110.94 },
+    { id: '441', name: "Cabriz Magnum Reserva", type: 'tinto', grapes: ['Touriga Nacional'], region: "Dão", body: 'encorpado', price: 270.15 },
+    
+    // PORTOS
+    { id: '350', name: "Porto Ruby Martha's", type: 'porto', grapes: ['Blend'], region: "Porto", body: 'doce', price: 63.60 },
+    { id: '353', name: "Porto 10 Anos", type: 'porto', grapes: ['Blend'], region: "Porto", body: 'doce', price: 194.33 },
+    { id: '423', name: "Porto 20 Anos", type: 'porto', grapes: ['Blend'], region: "Porto", body: 'doce', price: 331.25 },
 
     // ESPANHA
-    { id: '191', name: "Cava Bonaval Brut Rose", type: 'espumante', grapes: ['Garnacha'], region: "Jumilla", body: 'leve', price: 46.78 },
-    { id: '3000251', name: "La Vache Espagnole Tinto", type: 'tinto', grapes: ['Tempranillo'], region: "Espanha", body: 'medio', price: 33.92 }
+    { id: '191', name: "Cava Bonaval Rosé", type: 'espumante', grapes: ['Garnacha'], region: "Jumilla", body: 'leve', price: 46.78 },
+    { id: '3000251', name: "La Vache Tinto", type: 'tinto', grapes: ['Tempranillo'], region: "Espanha", body: 'medio', price: 33.92 }
 ];
 
+// BANCO DE DADOS DE PRATOS (PARA GERAR O MENU)
+const FOOD_DB = {
+    starters: [
+        { name: "Salada Caprese com Búfala", pair: "Branco Leve ou Rosé" },
+        { name: "Bruschetta de Tomate e Manjericão", pair: "Tinto Leve ou Rosé" },
+        { name: "Ceviche de Tilápia", pair: "Branco Ácido (Verde)" },
+        { name: "Carpaccio de Carne", pair: "Espumante ou Rosé" }
+    ],
+    mains: [
+        { name: "Bife Ancho com Batatas Rústicas", pair: "Tinto Encorpado" },
+        { name: "Risoto de Funghi Secchi", pair: "Tinto Médio (Pinot/Merlot)" },
+        { name: "Bacalhau à Gomes de Sá", pair: "Branco Encorpado" },
+        { name: "Costela Assada no Bafo", pair: "Tinto Encorpado (Malbec/Syrah)" }
+    ],
+    desserts: [
+        { name: "Petit Gâteau de Chocolate", pair: "Vinho do Porto" },
+        { name: "Tiramisu Clássico", pair: "Porto ou Moscatel" },
+        { name: "Queijo Gorgonzola com Mel", pair: "Vinho do Porto" },
+        { name: "Torta de Limão", pair: "Espumante Demi-Sec" }
+    ]
+};
+
 const app = {
-    // Utilitário para formatar moeda brasileira (R$ 10,00)
-    formatBRL: function(value) {
-        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    formatBRL: function(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); },
+
+    getTypeLabel: function(type) {
+        const map = {
+            'tinto': { label: 'Vinho Tinto', color: '#722F37' },
+            'branco': { label: 'Vinho Branco', color: '#f1c40f' },
+            'rose': { label: 'Vinho Rosé', color: '#e55039' },
+            'espumante': { label: 'Espumante', color: '#3498db' },
+            'porto': { label: 'Vinho do Porto', color: '#2c3e50' }
+        };
+        return map[type] || { label: type.toUpperCase(), color: '#999' };
     },
 
     init: function() {
-        console.log("App Inicializado - Modo BR");
         this.populateSelect('wineSelector1');
         this.populateSelect('wineSelector2');
     },
 
-    populateSelect: function(elementId) {
-        const select = document.getElementById(elementId);
-        if(!select) return;
-
-        select.innerHTML = '<option value="">-- Escolha um Vinho --</option>';
-        const sorted = WINE_DB.sort((a, b) => a.name.localeCompare(b.name));
-        
-        sorted.forEach(wine => {
-            const option = document.createElement('option');
-            option.value = wine.id;
-            option.textContent = `${wine.name} (${this.formatBRL(wine.price)})`;
-            select.appendChild(option);
+    populateSelect: function(elId) {
+        const sel = document.getElementById(elId);
+        if(!sel) return;
+        sel.innerHTML = '<option value="">-- Escolha um Vinho --</option>';
+        WINE_DB.sort((a,b)=>a.name.localeCompare(b.name)).forEach(w => {
+            const opt = document.createElement('option');
+            opt.value = w.id;
+            opt.textContent = w.name;
+            sel.appendChild(opt);
         });
     },
 
-    /** FUNC 1: HARMONIZAÇÃO COM COMIDA */
+    // 1. HARMONIZAÇÃO POR RÓTULO (VINHO -> COMIDA)
     harmonizeSingleWine: function() {
         const id = document.getElementById('wineSelector1').value;
-        const result = document.getElementById('pairingResult');
-        
-        if(!id) {
-            result.style.display = 'block';
-            result.innerHTML = '<p style="color:red">Por favor, selecione um vinho na lista.</p>';
-            return;
-        }
+        const res = document.getElementById('pairingResult');
+        if(!id) { res.innerHTML='<p style="color:red">Selecione um vinho.</p>'; res.style.display='block'; return; }
         
         const wine = WINE_DB.find(w => w.id === id);
-        if (!wine) return;
-
         let pairs = [];
-        const g = wine.grapes.join(' ').toLowerCase();
+        // Lógica simples de sugestão de prato
+        if(wine.type === 'espumante') pairs = ["Ostras Frescas", "Frituras (Coxinha/Tempurá)", "Sushi Variado"];
+        else if(wine.type === 'porto') pairs = ["Queijo Roquefort", "Chocolate 70% Cacau", "Cheesecake de Frutas Vermelhas"];
+        else if(wine.type === 'branco') pairs = wine.body==='leve' ? ["Salada Caesar", "Peixe Grelhado", "Frutos do Mar"] : ["Risoto de Brie", "Salmão ao Molho Maracujá", "Lombo de Porco"];
+        else if(wine.type === 'tinto') pairs = wine.body==='encorpado' ? ["Picanha na Brasa", "Costela Assada", "Feijoada"] : ["Pizza Marguerita", "Massas à Bolonhesa", "Frango Assado"];
+        else pairs = ["Paella Valenciana", "Tábua de Frios", "Camarão Alho e Óleo"];
 
-        if(wine.type === 'espumante') pairs = ["Ostras frescas", "Coxinha de frango (clássico!)", "Canapés"];
-        else if(wine.type === 'porto') pairs = ["Chocolate meio amargo", "Queijo Gorgonzola", "Sobremesas com café"];
-        else if(wine.type === 'branco') {
-            if(g.includes('alvarinho') || g.includes('arinto')) pairs = ["Casquinha de siri", "Ceviche", "Saladas cítricas"];
-            else if(g.includes('chardonnay')) pairs = ["Escondidinho de camarão", "Risoto de Brie", "Frango assado"];
-            else pairs = ["Peixe frito", "Sushi", "Massas leves"];
-        }
-        else if(wine.type === 'tinto') {
-            if(wine.body === 'leve') pairs = ["Pizza de Calabresa", "Frango com quiabo", "Cogumelos"];
-            else if(wine.body === 'encorpado') pairs = ["Churrasco (Picanha)", "Costela no bafo", "Feijoada completa"];
-            else pairs = ["Hambúrguer artesanal", "Massas à Bolonhesa", "Tábua de frios"];
-        }
-        else if(wine.type === 'rose') {
-            pairs = ["Moqueca capixaba", "Tábua de frios", "Salmão grelhado"];
-        }
-
-        result.innerHTML = `
-            <h3>${wine.name}</h3>
-            <span class="tag">${wine.type.toUpperCase()}</span> <span class="tag">${wine.region}</span>
-            <p><strong>Sugestões de Harmonização:</strong></p>
-            <ul>${pairs.map(p=>`<li>${p}</li>`).join('')}</ul>
-        `;
-        result.style.display = 'block';
+        res.innerHTML = `<h3>${wine.name}</h3><p><strong>Ideal para acompanhar:</strong></p><ul>${pairs.map(p=>`<li>${p}</li>`).join('')}</ul>`;
+        res.style.display='block';
     },
 
-    /** FUNC 2: MENU COMPLETO */
+    // 2. MENU GASTRONÔMICO DO CHEF (COMIDA -> VINHO)
     generateFullMenu: function() {
-        const entrada = WINE_DB.find(w => w.type === 'espumante' || (w.type === 'branco' && w.body === 'leve')) || WINE_DB[0];
-        const prato = WINE_DB.find(w => w.type === 'tinto' && w.body === 'encorpado') || WINE_DB.find(w => w.type === 'tinto');
-        const sobremesa = WINE_DB.find(w => w.type === 'porto') || WINE_DB.find(w => w.type === 'rose');
+        // 1. Escolhe os PRATOS aleatoriamente
+        const starter = FOOD_DB.starters[Math.floor(Math.random() * FOOD_DB.starters.length)];
+        const main = FOOD_DB.mains[Math.floor(Math.random() * FOOD_DB.mains.length)];
+        const dessert = FOOD_DB.desserts[Math.floor(Math.random() * FOOD_DB.desserts.length)];
 
-        const total = entrada.price + prato.price + sobremesa.price;
+        // 2. Busca o VINHO ideal para cada prato no estoque
+        // Lógica simples: busca pelo tipo sugerido na string do prato ou padrão
+        
+        // Vinho Entrada
+        let wineStarter = WINE_DB.find(w => w.type === 'espumante' || (w.type === 'branco' && w.body === 'leve'));
+        if (starter.name.includes("Bruschetta")) wineStarter = WINE_DB.find(w => w.type === 'tinto' && w.body === 'leve');
+
+        // Vinho Principal
+        let wineMain = WINE_DB.find(w => w.type === 'tinto' && w.body === 'encorpado');
+        if (main.name.includes("Bacalhau")) wineMain = WINE_DB.find(w => w.type === 'branco' && w.body === 'encorpado');
+        if (main.name.includes("Risoto")) wineMain = WINE_DB.find(w => w.type === 'tinto' && w.body === 'medio');
+
+        // Vinho Sobremesa
+        let wineDessert = WINE_DB.find(w => w.type === 'porto');
+        if (dessert.name.includes("Limão")) wineDessert = WINE_DB.find(w => w.type === 'espumante');
+
+        // Fallbacks de segurança
+        if (!wineStarter) wineStarter = WINE_DB[0];
+        if (!wineMain) wineMain = WINE_DB[1];
+        if (!wineDessert) wineDessert = WINE_DB[2];
+
+        const totalPrice = wineStarter.price + wineMain.price + wineDessert.price;
 
         const html = `
-            <h3>Menu Degustação Sugerido</h3>
-            <div style="margin-bottom:15px; border-left:4px solid #28a745; padding-left:10px;">
-                <strong>1. Entrada:</strong> ${entrada.name}<br>
-                <small>Uvas: ${entrada.grapes.join(', ')}</small>
+            <h3>Sugestão de Jantar Harmonizado</h3>
+            
+            <div class="menu-course">
+                <small>ENTRADA</small>
+                <span class="dish-name">${starter.name}</span>
+                <div class="wine-pairing-suggestion">
+                    Harmoniza com: <strong>${wineStarter.name}</strong> (${this.formatBRL(wineStarter.price)})
+                </div>
             </div>
-            <div style="margin-bottom:15px; border-left:4px solid #dc3545; padding-left:10px;">
-                <strong>2. Principal:</strong> ${prato.name}<br>
-                <small>Uvas: ${prato.grapes.join(', ')}</small>
+
+            <div class="menu-course">
+                <small>PRATO PRINCIPAL</small>
+                <span class="dish-name">${main.name}</span>
+                <div class="wine-pairing-suggestion">
+                    Harmoniza com: <strong>${wineMain.name}</strong> (${this.formatBRL(wineMain.price)})
+                </div>
             </div>
-            <div style="margin-bottom:15px; border-left:4px solid #ffc107; padding-left:10px;">
-                <strong>3. Sobremesa:</strong> ${sobremesa.name}<br>
-                <small>Uvas: ${sobremesa.grapes.join(', ')}</small>
+
+            <div class="menu-course">
+                <small>SOBREMESA</small>
+                <span class="dish-name">${dessert.name}</span>
+                <div class="wine-pairing-suggestion">
+                    Harmoniza com: <strong>${wineDessert.name}</strong> (${this.formatBRL(wineDessert.price)})
+                </div>
             </div>
+
             <hr>
-            <div style="text-align:right; font-size:1.2em; font-weight:bold; color:var(--primary);">
-                Total do Kit: ${this.formatBRL(total)}
+            <div style="text-align:right;">
+                <p><strong>Kit de Vinhos Completo: ${this.formatBRL(totalPrice)}</strong></p>
             </div>
         `;
-        const result = document.getElementById('menuResult');
-        result.innerHTML = html;
-        result.style.display = 'block';
+        document.getElementById('menuResult').innerHTML = html;
+        document.getElementById('menuResult').style.display='block';
     },
 
-    /** FUNC 3: ORÇAMENTO */
+    // 3. ORÇAMENTO
     simulateBudget: function(limit) {
-        let cart = [];
-        let currentTotal = 0;
-        let attempts = 0;
-        
-        const affordable = WINE_DB.filter(w => w.price <= limit);
-
-        if(affordable.length === 0) {
-            document.getElementById('budgetResult').innerHTML = "<p>Nenhum vinho disponível abaixo deste valor unitário.</p>";
-            document.getElementById('budgetResult').style.display = 'block';
-            return;
-        }
-
-        while(attempts < 50 && cart.length < 3) {
-            cart = [];
-            currentTotal = 0;
-            const shuffled = [...affordable].sort(() => Math.random() - 0.5);
-
-            for(let w of shuffled) {
-                if(currentTotal + w.price <= limit && cart.length < 5) {
-                    cart.push(w);
-                    currentTotal += w.price;
-                }
-            }
-            if(currentTotal > limit * 0.8) break; 
-            attempts++;
-        }
-
+        let cart = [], total = 0, pool = WINE_DB.filter(w=>w.price<=limit).sort(()=>Math.random()-0.5);
+        for(let w of pool) { if(total+w.price<=limit && cart.length<5) { cart.push(w); total+=w.price; } }
         let html = `<h3>Kit até ${this.formatBRL(limit)}</h3>`;
-        if(cart.length === 0) {
-            html += "<p>Não foi possível montar um kit com este valor.</p>";
-        } else {
-            html += `<table style="font-size:0.9rem">
-                <thead><tr><th>Vinho</th><th>Preço</th></tr></thead>
-                <tbody>
-                ${cart.map(c => `<tr><td>${c.name}</td><td>${this.formatBRL(c.price)}</td></tr>`).join('')}
-                <tr class="total-row"><td>TOTAL (${cart.length} garrafas)</td><td>${this.formatBRL(currentTotal)}</td></tr>
-                </tbody>
-            </table>`;
-            if(cart.length < 3) html += `<p style="font-size:0.8rem; color:red; margin-top:5px">* Orçamento apertado para 3 garrafas.</p>`;
+        if(!cart.length) html+="<p>Sem opções.</p>";
+        else {
+            html+=`<ul>${cart.map(c=>`<li>${c.name} - <strong>${this.formatBRL(c.price)}</strong></li>`).join('')}</ul>`;
+            html+=`<p class="total-row" style="padding:10px;">Total: ${this.formatBRL(total)}</p>`;
         }
-        
-        const result = document.getElementById('budgetResult');
-        result.innerHTML = html;
-        result.style.display = 'block';
+        document.getElementById('budgetResult').innerHTML = html;
+        document.getElementById('budgetResult').style.display='block';
     },
 
-    /** FUNC 4: WINE BRIDGING */
+    // 4. WINE BRIDGING
     pairWineWithWine: function() {
         const id = document.getElementById('wineSelector2').value;
-        const resultBox = document.getElementById('winePairingResult');
+        const res = document.getElementById('winePairingResult');
+        if(!id) { res.innerHTML='<p style="color:red">Selecione o vinho.</p>'; res.style.display='block'; return; }
 
-        if(!id) {
-            resultBox.style.display = 'block';
-            resultBox.innerHTML = '<p style="color:red">Selecione um vinho de referência primeiro.</p>';
-            return;
-        }
-
-        const refWine = WINE_DB.find(w => w.id === id);
-        
-        let suggestion = null;
+        const ref = WINE_DB.find(w => w.id === id);
+        let candidates = [];
         let strategy = "";
         let reason = "";
+        const baseFilter = (w) => w.id !== ref.id;
 
-        // Lógica de Pairing Entre Vinhos
-        if (refWine.type === 'branco') {
-            if (refWine.body === 'leve') {
-                suggestion = WINE_DB.find(w => w.grapes.includes('Pinot Noir')) || WINE_DB.find(w => w.type === 'rose');
+        if (ref.type === 'branco') {
+            if (ref.body === 'leve') {
+                candidates = WINE_DB.filter(w => baseFilter(w) && (w.type==='rose' || (w.type==='tinto' && w.body==='leve')));
                 strategy = "Continuidade de Acidez";
-                reason = "A acidez vibrante deste branco pede um tinto leve e elegante (como Pinot Noir) para não chocar o paladar.";
+                reason = "Vinhos com frescor para manter a vivacidade.";
             } else {
-                suggestion = WINE_DB.find(w => w.type === 'tinto' && w.body === 'medio') || WINE_DB.find(w => w.type === 'tinto');
+                candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='tinto' && w.body==='medio');
                 strategy = "Evolução de Peso";
-                reason = "A untuosidade deste branco prepara a boca para um tinto de corpo médio.";
+                reason = "Subindo degraus de estrutura.";
             }
-        }
-        else if (refWine.type === 'tinto') {
-            if (refWine.body === 'encorpado') {
-                suggestion = WINE_DB.find(w => w.type === 'porto') || WINE_DB.find(w => w.body === 'encorpado'); 
-                strategy = "Finalização Clássica";
-                reason = "Após um tinto potente, a evolução natural é a doçura alcoólica de um Porto.";
+        } 
+        else if (ref.type === 'tinto') {
+            if (ref.body === 'encorpado') {
+                candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='porto');
+                strategy = "Gran Finale";
+                reason = "Apenas vinhos fortificados suportam o peso de um grande tinto.";
             } else {
-                suggestion = WINE_DB.find(w => w.body === 'encorpado') || WINE_DB.find(w => w.body === 'medio');
-                strategy = "Crescendo de Intensidade";
-                reason = "Começar leve permite que o próximo vinho (mais encorpado) brilhe mais.";
+                candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='tinto' && w.body==='encorpado');
+                strategy = "Crescendo";
+                reason = "Evoluindo para taninos mais marcantes.";
             }
         }
-        else if (refWine.type === 'espumante' || refWine.type === 'rose') {
-            suggestion = WINE_DB.find(w => w.type === 'branco' && w.body === 'encorpado') || WINE_DB.find(w => w.type === 'tinto' && w.body === 'leve');
-            strategy = "Frescura Aromática";
-            reason = "A acidez do espumante/rosé limpa o palato, preparando-o para vinhos mais complexos.";
+        else if (ref.type === 'porto') {
+            candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='espumante');
+            strategy = "Refresh";
+            reason = "Limpando o açúcar do palato.";
         }
-        else if (refWine.type === 'porto') {
-            suggestion = WINE_DB.find(w => w.type === 'espumante');
-            strategy = "Reset de Palato";
-            reason = "O Porto geralmente encerra a noite. Se quiser continuar, apenas um Espumante Brut limpa o açúcar.";
+        else { 
+            candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='branco');
+            strategy = "Aromático";
+            reason = "Entrada para vinhos brancos complexos.";
         }
 
-        if (suggestion) {
-            const total = refWine.price + suggestion.price;
-            let html = `
-                <div class="bridge-container">
-                    <div class="wine-box source">
-                        <strong>Sua Escolha</strong><br>
-                        <span style="color:var(--primary); font-size:1.1em; font-weight:bold">${refWine.name}</span><br>
-                        <small>${refWine.type.toUpperCase()}</small>
+        if (candidates.length === 0) {
+            candidates = WINE_DB.filter(w => baseFilter(w) && w.type !== ref.type); 
+            reason = "Sugestões variadas para mudar o estilo.";
+        }
+
+        candidates.sort((a, b) => b.price - a.price);
+        const top3 = candidates.slice(0, 3);
+
+        let html = `
+            <div class="source-wine-display">
+                <small>VOCÊ ESCOLHEU</small><br>
+                <strong style="font-size:1.2em; color:var(--primary)">${ref.name}</strong><br>
+                <span>${this.formatBRL(ref.price)}</span>
+            </div>
+            
+            <div style="text-align:center; margin-bottom:15px; color:var(--secondary); font-weight:bold;">
+                &darr; COMBINAÇÕES IDEAIS &darr;
+            </div>
+
+            <div class="suggestions-grid">
+        `;
+
+        top3.forEach((cand, index) => {
+            let label = index === 0 ? "Premium" : (index === 1 ? "Intermediário" : "Best Value");
+            let labelClass = index === 0 ? "premium" : (index === top3.length - 1 ? "value" : "");
+            const typeInfo = this.getTypeLabel(cand.type);
+
+            html += `
+                <div class="suggestion-card">
+                    <span class="rank-label ${labelClass}">${label}</span>
+                    <div>
+                        <span class="type-badge" style="background-color:${typeInfo.color}">${typeInfo.label}</span>
+                        <strong style="color:#004085; display:block; margin-bottom:5px; margin-top:5px;">${cand.name}</strong>
+                        <small style="color:#666;">${cand.region} | ${cand.grapes[0]}</small>
                     </div>
-                    <div class="arrow">&rarr;</div>
-                    <div class="wine-box target">
-                        <strong>Par Sugerido</strong><br>
-                        <span style="color:#004085; font-size:1.1em; font-weight:bold">${suggestion.name}</span><br>
-                        <small>${suggestion.type.toUpperCase()}</small>
-                    </div>
-                </div>
-                <div class="match-explanation">
-                    <span class="tag" style="background:var(--accent); color:white; margin-bottom:5px;">${strategy}</span>
-                    <p>${reason}</p>
-                    <p style="margin-top:10px; font-weight:bold">Valor do Duo: ${this.formatBRL(total)}</p>
+                    <span class="price-badge">${this.formatBRL(cand.price)}</span>
                 </div>
             `;
-            resultBox.innerHTML = html;
-            resultBox.style.display = 'block';
-        } else {
-             resultBox.innerHTML = '<p>Não foi possível encontrar um par perfeito no banco de dados atual.</p>';
-             resultBox.style.display = 'block';
-        }
+        });
+
+        html += `</div>
+            <div class="match-explanation">
+                <span class="tag" style="background:var(--accent); color:white;">${strategy}</span>
+                <p>${reason}</p>
+            </div>`;
+
+        res.innerHTML = html;
+        res.style.display = 'block';
     }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    app.init();
-});
-
+document.addEventListener('DOMContentLoaded', ()=>app.init());
 </script>
-
 </body>
 </html>
