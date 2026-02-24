@@ -1,525 +1,2037 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S&P Importadora - Sommelier Digital (v4.4 Food Focus)</title>
-    <style>
-        /* ESTILO "RESTAURANT MENU" */
-        :root {
-            --primary: #722F37; /* Vinho */
-            --secondary: #2C3E50; /* Escuro */
-            --accent: #D4AF37; /* Dourado */
-            --food-highlight: #e67e22; /* Laranja (Apetite) */
-            --bg: #F5F5F5;
-            --card-bg: #FFFFFF;
-            --text: #333333;
-            --border: #DDDDDD;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S&P Importadora - Sommelier Digital v6.0</title>
+  <style>
+    /* ===================== DESIGN TOKENS ===================== */
+    :root {
+      --primary:   #722F37;
+      --secondary: #2C3E50;
+      --accent:    #D4AF37;
+      --food:      #e67e22;
+      --success:   #27ae60;
+      --danger:    #e74c3c;
+      --info:      #2980b9;
+      --bg:        #F5F5F5;
+      --card-bg:   #FFFFFF;
+      --text:      #333333;
+      --muted:     #888888;
+      --border:    #DDDDDD;
+      --focus:     rgba(114,47,55,.12);
+    }
 
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
+    /* ===================== BASE ===================== */
+    *, *::before, *::after { box-sizing: border-box; }
 
-        .container { max-width: 1000px; margin: 0 auto; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      line-height: 1.6;
+    }
 
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 4px solid var(--primary);
-            padding-bottom: 20px;
-        }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
 
-        h1 { color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
-        
-        h2 { 
-            color: var(--secondary); 
-            font-size: 1.4rem; 
-            border-left: 6px solid var(--primary); 
-            padding-left: 15px; 
-            margin-top: 40px;
-            font-weight: 700;
-        }
-        
-        .new-feature {
-            background-color: var(--accent);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            vertical-align: middle;
-            margin-left: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+    /* ===================== TOP NAV ===================== */
+    .top-nav {
+      background: var(--secondary);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .top-nav .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .top-nav .brand {
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+    .top-nav .brand span { color: var(--accent); }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab {
+      padding: 14px 18px;
+      color: rgba(255,255,255,.75);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .86rem;
+      border-bottom: 3px solid transparent;
+      transition: all .2s;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .nav-tab:hover  { color: #fff; }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-        }
+    /* ===================== PAGE HEADER ===================== */
+    .page-header {
+      text-align: center;
+      padding: 36px 0 24px;
+      border-bottom: 4px solid var(--primary);
+      margin-bottom: 32px;
+    }
+    .page-header h1 {
+      color: var(--primary);
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 2rem;
+    }
+    .page-header p { color: var(--muted); margin: 0; }
 
-        select, button {
-            padding: 12px 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
+    /* ===================== PAGES + TRANSITIONS ===================== */
+    .page-section {
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+    .page-section.active {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      max-height: 99999px;
+      overflow: visible;
+    }
 
-        select { min-width: 250px; background-color: white; }
+    /* ===================== CARDS ===================== */
+    .card {
+      background: var(--card-bg);
+      padding: 28px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.06);
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
+    }
 
-        button {
-            background-color: var(--secondary);
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-            border: none;
-        }
+    h2 {
+      color: var(--secondary);
+      font-size: 1.25rem;
+      border-left: 6px solid var(--primary);
+      padding-left: 14px;
+      margin: 0 0 16px;
+      font-weight: 800;
+    }
 
-        button:hover { background-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        
-        button.budget-btn {
-            background-color: white;
-            color: var(--secondary);
-            border: 1px solid var(--secondary);
-        }
-        button.budget-btn:hover { background-color: var(--secondary); color: white; }
+    .help {
+      font-size: .86rem;
+      color: var(--muted);
+      margin: -6px 0 12px;
+    }
 
-        .result-box {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #fffdf9; /* Fundo levemente quente */
-            border: 1px solid #eee;
-            border-top: 4px solid var(--food-highlight); /* Destaque Laranja */
-            display: none;
-            animation: fadeIn 0.5s;
-        }
+    /* ===================== FORMS ===================== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: .8rem; font-weight: 800; color: var(--secondary); }
 
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    input[type=text], input[type=email], input[type=number], input[type=date],
+    select, textarea {
+      padding: 9px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: .95rem;
+      font-family: inherit;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus);
+    }
+    textarea { resize: vertical; min-height: 72px; }
 
-        /* ESTILOS ESPECÍFICOS DO MENU DE COMIDA (SEÇÃO 2) */
-        .menu-paper {
-            background-color: #fff;
-            padding: 20px;
-            border: 1px dashed #bbb;
-            position: relative;
-        }
+    /* ===================== VALIDATION ===================== */
+    .field-error {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 3px rgba(231,76,60,.15) !important;
+      background: #fff7f7;
+    }
+    .form-errors {
+      display: none;
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fff3f3;
+      border: 1px solid rgba(231,76,60,.3);
+      color: #8e1b10;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    .form-errors.show { display: block; }
 
-        .course-title {
-            font-size: 0.85rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+    /* ===================== BUTTONS ===================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: .9rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: inherit;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.15); }
+    .btn:active { transform: translateY(0); }
 
-        .dish-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--secondary);
-            display: block;
-            margin-bottom: 5px;
-            font-family: 'Georgia', serif; /* Fonte mais clássica para comida */
-        }
+    .btn-primary   { background: var(--secondary); color: #fff; }
+    .btn-primary:hover { background: var(--primary); }
+    .btn-success   { background: var(--success); color: #fff; }
+    .btn-danger    { background: var(--danger);  color: #fff; }
+    .btn-warning   { background: var(--accent);  color: #fff; }
+    .btn-info      { background: var(--info);    color: #fff; }
+    .btn-outline   { background: #fff; color: var(--secondary); border: 1.5px solid var(--secondary); }
+    .btn-outline:hover { background: var(--secondary); color: #fff; }
+    .btn-sm        { padding: 6px 10px; font-size: .78rem; }
+    .btn-food      { background: var(--food); color: #fff; }
 
-        .dish-description {
-            font-size: 0.95rem;
-            color: #666;
-            font-style: italic;
-            margin-bottom: 10px;
-            display: block;
-        }
+    /* ===================== TABLES ===================== */
+    .table-wrap { overflow-x: auto; margin-top: 18px; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--secondary); color: #fff; }
+    thead th { padding: 10px 14px; text-align: left; font-weight: 800; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+    tbody tr { border-bottom: 1px solid #eee; transition: background .15s; }
+    tbody tr:hover { background: #fafafa; }
+    tbody td { padding: 9px 14px; vertical-align: middle; }
 
-        .wine-pairing-note {
-            background-color: #f1f2f6;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            color: var(--primary);
-            display: inline-block;
-            margin-bottom: 25px;
-            border-left: 3px solid var(--primary);
-        }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 50px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .badge-tinto     { background: #f8d7da; color: #721c24; }
+    .badge-branco    { background: #fff3cd; color: #856404; }
+    .badge-rose      { background: #fce4ec; color: #c2185b; }
+    .badge-espumante { background: #d1ecf1; color: #0c5460; }
+    .badge-porto     { background: #e2d9f3; color: #5a3e85; }
 
-        /* GRID SYSTEM */
-        .suggestions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
+    /* ===================== SUB TABS (Admin) ===================== */
+    .sub-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin: 14px 0 24px;
+      flex-wrap: wrap;
+    }
+    .sub-tab {
+      padding: 9px 18px;
+      font-weight: 800;
+      font-size: .86rem;
+      cursor: pointer;
+      color: var(--muted);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .sub-tab:hover  { color: var(--secondary); }
+    .sub-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-        .suggestion-card {
-            background: white;
-            border: 1px solid #b6d4fe;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.2s;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+    /* ===================== RESULT BOXES (Sommelier) ===================== */
+    .result-box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #fffdf9;
+      border: 1px solid #eee;
+      border-top: 4px solid var(--food);
+      display: none;
+      animation: fadeIn .35s;
+      border-radius: 0 0 8px 8px;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 
-        .suggestion-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    /* ===================== SOMMELIER SPECIFIC ===================== */
+    .budget-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+    .menu-paper { background: #fff; padding: 20px; border: 1px dashed #bbb; border-radius: 6px; }
+    .course-title { font-size: .82rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+    .dish-name { font-size: 1.3rem; font-weight: 900; color: var(--secondary); display: block; font-family: Georgia, serif; }
+    .dish-desc { font-size: .9rem; color: #666; font-style: italic; display: block; margin-bottom: 10px; }
+    .pairing-note {
+      background: #f1f2f6;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: .88rem;
+      color: var(--primary);
+      display: inline-block;
+      margin-bottom: 22px;
+      border-left: 3px solid var(--primary);
+    }
+    .suggestions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .suggestion-card {
+      background: #fff;
+      border: 1px solid #b6d4fe;
+      border-radius: 8px;
+      padding: 20px 16px;
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform .2s;
+    }
+    .suggestion-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,.1); }
+    .rank-label {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      font-size: .68rem; padding: 3px 10px; border-radius: 12px;
+      text-transform: uppercase; font-weight: 900;
+      background: var(--secondary); color: #fff;
+    }
+    .rank-label.premium { background: var(--accent); }
+    .price-badge {
+      background: var(--success); color: #fff;
+      padding: 4px 12px; border-radius: 50px; font-weight: 900; font-size: .88rem;
+      display: inline-block; margin-top: 10px;
+    }
+    .new-feature {
+      background: var(--accent); color: #fff;
+      padding: 2px 7px; border-radius: 4px; font-size: .68rem;
+      vertical-align: middle; margin-left: 8px; font-weight: 900; text-transform: uppercase;
+    }
 
-        .price-badge {
-            background-color: #27ae60;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: inline-block;
-        }
+    /* ===================== TOAST ===================== */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--secondary); color: #fff;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: .9rem; font-weight: 900;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      transform: translateY(80px); opacity: 0;
+      transition: all .3s; z-index: 9999;
+      max-width: min(520px, calc(100vw - 48px));
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 5px solid var(--success); }
+    #toast.error   { border-left: 5px solid var(--danger); }
 
-        .rank-label {
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            background: var(--secondary); color: white; font-size: 0.7rem;
-            padding: 4px 10px; border-radius: 12px; text-transform: uppercase; font-weight: bold;
-        }
-        .rank-label.premium { background: #D4AF37; }
+    /* ===================== STATS ROW ===================== */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; text-align: center; }
+    .stat-card .stat-number { font-size: 1.8rem; font-weight: 900; color: var(--primary); line-height: 1; }
+    .stat-card .stat-label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; font-weight: 900; }
 
-        @media (max-width: 600px) { select, button { width: 100%; } }
-    </style>
+    /* ===================== EMPTY STATE ===================== */
+    .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: .95rem; }
+    .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+
+    /* ===================== ADMIN PANELS ===================== */
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+
+    /* ===================== REPORTS ===================== */
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .chart-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+    }
+    .chart-title { margin: 0 0 8px; font-weight: 900; color: var(--secondary); font-size: .95rem; }
+    .chart-sub { margin: -2px 0 10px; color: var(--muted); font-size: .82rem; }
+    canvas { width: 100%; height: 280px; }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 860px) {
+      .top-nav .inner { gap: 10px; }
+      .nav-tabs { gap: 0; }
+      .nav-tab { padding: 12px 12px; }
+      .report-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .page-header h1 { font-size: 1.5rem; }
+      .card { padding: 20px 18px; }
+      .container { padding: 14px; }
+      #toast { bottom: 16px; right: 16px; max-width: calc(100vw - 32px); }
+      canvas { height: 240px; }
+    }
+  </style>
 </head>
 <body>
 
+<!-- ==================== TOP NAVIGATION ==================== -->
+<nav class="top-nav">
+  <div class="inner">
+    <div class="brand">S&P <span>IMPORTADORA</span></div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchPage('sommelier')">🍷 Sommelier</div>
+      <div class="nav-tab" onclick="switchPage('admin')">⚙️ Admin</div>
+      <div class="nav-tab" onclick="switchPage('reports')">📊 Relatórios</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== TOAST ==================== -->
+<div id="toast"></div>
+
 <div class="container">
-    <header>
-        <h1>S&P IMPORTADORA</h1>
-        <p style="color:#666;">Sommelier Digital v4.4 | <span style="font-size:0.9em">Brasil (R$)</span></p>
-    </header>
 
-    <div class="card">
-        <h2>1. Harmonização por Rótulo</h2>
-        <p>Selecione um vinho para saber com qual prato ele combina.</p>
-        <select id="wineSelector1"><option value="">-- Carregando... --</option></select>
-        <button onclick="app.harmonizeSingleWine()">Ver Pratos Sugeridos</button>
-        <div id="pairingResult" class="result-box"></div>
+  <!-- ========== PAGE: SOMMELIER ========== -->
+  <div class="page-section active" id="page-sommelier">
+    <div class="page-header">
+      <h1>S&P IMPORTADORA</h1>
+      <p>Sommelier Digital v6.0 | Brasil (R$)</p>
     </div>
 
     <div class="card">
-        <h2>2. Gerador de Cardápio (Comida)</h2>
-        <p>Está sem ideias para o jantar? Gere um <strong>Menu Completo</strong> e veja qual vinho comprar.</p>
-        <button onclick="app.generateFoodMenu()" style="background-color: var(--food-highlight); border:none;">Criar Cardápio do Dia</button>
-        <div id="menuResult" class="result-box"></div>
+      <h2>1. Harmonização por Rótulo</h2>
+      <p class="help">Selecione um vinho para saber com qual prato ele combina.</p>
+      <select id="wineSelector1"><option value="">-- Escolha um Vinho --</option></select>
+      <button class="btn btn-primary" style="margin-left:8px" onclick="app.harmonize()">Ver Pratos Sugeridos</button>
+      <div id="pairingResult" class="result-box"></div>
     </div>
 
     <div class="card">
-        <h2>3. Simulador de Compras</h2>
-        <p>Kits de vinho baseados no seu orçamento.</p>
-        <div>
-            <button class="budget-btn" onclick="app.simulateBudget(100)">Até R$ 100</button>
-            <button class="budget-btn" onclick="app.simulateBudget(200)">Até R$ 200</button>
-            <button class="budget-btn" onclick="app.simulateBudget(300)">Até R$ 300</button>
-            <button class="budget-btn" onclick="app.simulateBudget(500)">Até R$ 500</button>
+      <h2>2. Gerador de Cardápio (Comida)</h2>
+      <p class="help">Gere um <strong>Menu Completo</strong> com sugestão de vinho para cada prato.</p>
+      <button class="btn btn-food" onclick="app.generateMenu()">🍽️ Criar Cardápio do Dia</button>
+      <div id="menuResult" class="result-box"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. Simulador de Compras</h2>
+      <p class="help">Monte um kit de vinhos dentro do seu orçamento.</p>
+      <div class="budget-row">
+        <button class="btn btn-outline" onclick="app.budget(100)">Até R$ 100</button>
+        <button class="btn btn-outline" onclick="app.budget(200)">Até R$ 200</button>
+        <button class="btn btn-outline" onclick="app.budget(300)">Até R$ 300</button>
+        <button class="btn btn-outline" onclick="app.budget(500)">Até R$ 500</button>
+      </div>
+      <div id="budgetResult" class="result-box"></div>
+    </div>
+
+    <div class="card" style="border-left:5px solid var(--accent)">
+      <h2>4. Wine Bridging <span class="new-feature">NOVO</span></h2>
+      <p class="help">Encontre até <strong>3 opções de vinho</strong> para harmonizar com seu rótulo favorito.</p>
+      <select id="wineSelector2"><option value="">-- Escolha o Vinho de Referência --</option></select>
+      <button class="btn btn-primary" style="margin-left:8px;background:var(--primary)" onclick="app.bridging()">Buscar Opções</button>
+      <div id="bridgeResult" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: ADMIN ========== -->
+  <div class="page-section" id="page-admin">
+    <div class="page-header">
+      <h1>⚙️ PAINEL ADMIN</h1>
+      <p>Gestão de Distribuidores e Produtos · Backup JSON · Validação de Formulários</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-number" id="stat-dist">0</div><div class="stat-label">Distribuidores</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-prod">0</div><div class="stat-label">Produtos</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-sales">0</div><div class="stat-label">Vendas (eventos)</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-rev">R$0</div><div class="stat-label">Receita (30 dias)</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-avg">R$0</div><div class="stat-label">Preço médio</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-top">—</div><div class="stat-label">Top produto (30 dias)</div></div>
+    </div>
+
+    <!-- Import / Export JSON -->
+    <div class="card" style="border-left:5px solid var(--info)">
+      <h2>Importar / Exportar (Backup em JSON)</h2>
+      <p class="help">Exporta e importa: <strong>Distribuidores</strong>, <strong>Produtos</strong> e <strong>Vendas</strong> (dados locais do navegador).</p>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-info" onclick="backup.exportJSON()">⬇️ Exportar JSON</button>
+        <button class="btn btn-danger btn-sm" onclick="backup.clearAllData()">🧨 Limpar TUDO (reset)</button>
+        <span style="color:var(--muted);font-size:.86rem">Dica: use “Exportar” antes de limpar.</span>
+      </div>
+
+      <div style="margin-top:14px" class="form-grid">
+        <div class="form-group">
+          <label>Importar de arquivo (.json)</label>
+          <input type="file" id="import-file" accept="application/json" />
         </div>
-        <div id="budgetResult" class="result-box"></div>
+        <div class="form-group" style="grid-column: span 2">
+          <label>Ou cole o JSON aqui</label>
+          <textarea id="import-text" placeholder='{"version":"6.0","data":{"distributors":[],"products":[],"sales":[]}}'></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-success" onclick="backup.importFromUI()">⬆️ Importar JSON</button>
+        <button class="btn btn-outline" onclick="backup.clearImportUI()">✕ Limpar campo</button>
+      </div>
+      <div id="import-errors" class="form-errors"></div>
     </div>
 
-    <div class="card" style="border-left: 5px solid var(--accent);">
-        <h2>4. Wine Bridging (Multiopções) <span class="new-feature">NOVO</span></h2>
-        <p>Encontre até <strong>3 opções de vinho</strong> ideais para harmonizar com seu rótulo favorito.</p>
-        <select id="wineSelector2"><option value="">-- Escolha o Vinho de Referência --</option></select>
-        <button onclick="app.pairWineWithWine()" style="background-color: var(--primary);">Buscar Opções</button>
-        <div id="winePairingResult" class="result-box"></div>
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="switchAdmin('distribuidores')">🏭 Distribuidores</div>
+      <div class="sub-tab" onclick="switchAdmin('produtos')">🍾 Produtos / Vinhos</div>
+      <div class="sub-tab" onclick="switchAdmin('vendas')">🧾 Vendas (lançamento)</div>
     </div>
+
+    <!-- ===== ADMIN: DISTRIBUIDORES ===== -->
+    <div class="admin-panel active" id="admin-distribuidores">
+      <div class="card">
+        <h2>Cadastrar Distribuidor</h2>
+        <p class="help">Campos com * são obrigatórios. Campos inválidos ficam destacados em vermelho.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome * </label>
+            <input type="text" id="d-nome" placeholder="Ex.: Distribuidora Central Ltda">
+          </div>
+          <div class="form-group">
+            <label>Cidade * </label>
+            <input type="text" id="d-cidade" placeholder="São Paulo">
+          </div>
+          <div class="form-group">
+            <label>Estado (UF) * </label>
+            <select id="d-estado">
+              <option value="">-- UF --</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option selected>SP</option><option>SE</option><option>TO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CEP(s) atendidos</label>
+            <input type="text" id="d-cep" placeholder="01310, 04567, 05080...">
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" id="d-tel" placeholder="(11) 99999-0000">
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="d-email" placeholder="contato@distribuidora.com">
+          </div>
+          <div class="form-group">
+            <label>Responsável</label>
+            <input type="text" id="d-resp" placeholder="Nome do responsável">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="d-status">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+              <option value="negociando">Em negociação</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-success" onclick="admin.saveDistribuidor()">💾 Salvar Distribuidor</button>
+          <button class="btn btn-outline" onclick="admin.clearDistribuidorForm()">✕ Limpar</button>
+          <input type="hidden" id="d-edit-id" value="">
+        </div>
+        <div id="d-errors" class="form-errors"></div>
+      </div>
+
+      <div class="card">
+        <h2>Importar via CSV (cole abaixo)</h2>
+        <p class="help">Formato: <code>Nome;Cidade;Estado;CEP;Telefone;Email;Responsável;Status</code> (uma linha por distribuidor, sem cabeçalho)</p>
+        <textarea id="d-csv" placeholder="Distribuidora Sul;Porto Alegre;RS;90010,91050;(51) 3333-4444;sul@dist.com;Marcos;ativo"></textarea>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-info" onclick="admin.importDistCSV()">📥 Importar CSV</button>
+          <button class="btn btn-danger btn-sm" onclick="admin.clearAll('distributors')">🗑️ Limpar distribuidores</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Distribuidores Cadastrados</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Nome</th><th>Cidade/UF</th><th>CEPs</th><th>Telefone</th><th>E-mail</th><th>Responsável</th><th>Status</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="dist-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: PRODUTOS ===== -->
+    <div class="admin-panel" id="admin-produtos">
+      <div class="card">
+        <h2>Cadastrar Produto / Vinho</h2>
+        <p class="help">Campos com * são obrigatórios. O cadastro alimenta os seletores do Sommelier.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Código * </label>
+            <input type="text" id="p-codigo" placeholder="Ex.: 1001">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Nome * </label>
+            <input type="text" id="p-nome" placeholder="Ex.: Chateau Margaux 2018">
+          </div>
+          <div class="form-group">
+            <label>Tipo * </label>
+            <select id="p-tipo">
+              <option value="">-- Tipo --</option>
+              <option value="tinto">Tinto</option>
+              <option value="branco">Branco</option>
+              <option value="rose">Rosé</option>
+              <option value="espumante">Espumante</option>
+              <option value="porto">Porto</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Corpo</label>
+            <select id="p-corpo">
+              <option value="">-- Corpo --</option>
+              <option value="leve">Leve</option>
+              <option value="medio">Médio</option>
+              <option value="encorpado">Encorpado</option>
+              <option value="doce">Doce</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>País / Região</label>
+            <input type="text" id="p-regiao" placeholder="Ex.: Bordeaux, França">
+          </div>
+          <div class="form-group">
+            <label>Uva(s)</label>
+            <input type="text" id="p-uva" placeholder="Ex.: Cabernet Sauvignon, Merlot">
+          </div>
+          <div class="form-group">
+            <label>Preço Unidade (R$) * </label>
+            <input type="number" id="p-preco" placeholder="89.90" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label>Preço Caixa (R$)</label>
+            <input type="number" id="p-preco-cx" placeholder="850.00" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label>Unidades por Caixa</label>
+            <input type="number" id="p-upcx" placeholder="6" min="1">
+          </div>
+          <div class="form-group">
+            <label>Volume (ml)</label>
+            <input type="number" id="p-ml" placeholder="750" min="0">
+          </div>
+          <div class="form-group">
+            <label>Distribuidor (opcional)</label>
+            <select id="p-dist"><option value="">-- Nenhum --</option></select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="p-status">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+              <option value="sob-consulta">Sob consulta</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-success" onclick="admin.saveProduto()">💾 Salvar Produto</button>
+          <button class="btn btn-outline" onclick="admin.clearProdutoForm()">✕ Limpar</button>
+          <input type="hidden" id="p-edit-id" value="">
+        </div>
+        <div id="p-errors" class="form-errors"></div>
+      </div>
+
+      <div class="card">
+        <h2>Importar via CSV (cole abaixo)</h2>
+        <p class="help">Formato: <code>Código;Nome;Tipo;Corpo;Região;Uva;PreçoUnit;PreçoCaixa;UnidadesCaixa;ML;Status</code> (uma linha por produto, sem cabeçalho)</p>
+        <textarea id="p-csv" placeholder="2001;Chateau Tour;tinto;encorpado;Bordeaux,França;Cabernet Sauvignon;95.00;540.00;6;750;ativo"></textarea>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-info" onclick="admin.importProdCSV()">📥 Importar CSV</button>
+          <button class="btn btn-warning btn-sm" onclick="admin.loadDefaults()">🔄 Restaurar padrões</button>
+          <button class="btn btn-danger btn-sm" onclick="admin.clearAll('products')">🗑️ Limpar produtos</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <h2 style="margin:0">Produtos Cadastrados</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="filter-tipo" onchange="admin.renderProdutos()" style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+              <option value="">Todos os tipos</option>
+              <option value="tinto">Tinto</option>
+              <option value="branco">Branco</option>
+              <option value="rose">Rosé</option>
+              <option value="espumante">Espumante</option>
+              <option value="porto">Porto</option>
+            </select>
+            <input type="text" id="filter-search" placeholder="🔍 Buscar..." oninput="admin.renderProdutos()" style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:.85rem;max-width:180px">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Código</th><th>Nome</th><th>Tipo</th><th>Corpo</th><th>Região</th><th>Uva</th><th>Preço Unit</th><th>Preço Cx</th><th>Status</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="prod-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: VENDAS ===== -->
+    <div class="admin-panel" id="admin-vendas">
+      <div class="card">
+        <h2>Lançar Venda (evento)</h2>
+        <p class="help">Isso alimenta os gráficos em <strong>Relatórios</strong>. É uma simulação (sem checkout real).</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Distribuidor * </label>
+            <select id="s-dist"><option value="">-- Selecione --</option></select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Produto * </label>
+            <select id="s-prod"><option value="">-- Selecione --</option></select>
+          </div>
+          <div class="form-group">
+            <label>Quantidade * </label>
+            <input type="number" id="s-qty" min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label>Data * </label>
+            <input type="date" id="s-date">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-success" onclick="sales.addFromForm()">🧾 Lançar venda</button>
+          <button class="btn btn-outline" onclick="sales.clearForm()">✕ Limpar</button>
+          <button class="btn btn-info" onclick="sales.seedSample()">🎲 Gerar vendas de exemplo</button>
+          <button class="btn btn-danger btn-sm" onclick="admin.clearAll('sales')">🗑️ Limpar vendas</button>
+        </div>
+        <div id="s-errors" class="form-errors"></div>
+      </div>
+
+      <div class="card">
+        <h2>Últimas Vendas</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th><th>Distribuidor</th><th>Produto</th><th>Qtd</th><th>Preço unit</th><th>Total</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="sales-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== PAGE: REPORTS ========== -->
+  <div class="page-section" id="page-reports">
+    <div class="page-header">
+      <h1>📊 RELATÓRIOS</h1>
+      <p>Vendas por distribuidor e produtos mais vendidos (simulado)</p>
+    </div>
+
+    <div class="card">
+      <h2>Filtros</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Data inicial</label>
+          <input type="date" id="r-from">
+        </div>
+        <div class="form-group">
+          <label>Data final</label>
+          <input type="date" id="r-to">
+        </div>
+        <div class="form-group">
+          <label>Métrica</label>
+          <select id="r-metric">
+            <option value="revenue">Receita (R$)</option>
+            <option value="qty">Quantidade (un.)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Top produtos</label>
+          <select id="r-topn">
+            <option value="5">Top 5</option>
+            <option value="10" selected>Top 10</option>
+            <option value="15">Top 15</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="reports.render()">🔄 Atualizar gráficos</button>
+        <button class="btn btn-info" onclick="sales.seedSample()">🎲 Gerar vendas de exemplo</button>
+        <button class="btn btn-danger btn-sm" onclick="admin.clearAll('sales')">🗑️ Limpar vendas</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Visão Geral</h2>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-number" id="r-stat-events">0</div><div class="stat-label">Eventos</div></div>
+        <div class="stat-card"><div class="stat-number" id="r-stat-rev">R$0</div><div class="stat-label">Receita</div></div>
+        <div class="stat-card"><div class="stat-number" id="r-stat-qty">0</div><div class="stat-label">Itens</div></div>
+        <div class="stat-card"><div class="stat-number" id="r-stat-avg">R$0</div><div class="stat-label">Ticket médio</div></div>
+        <div class="stat-card"><div class="stat-number" id="r-stat-best">—</div><div class="stat-label">Top produto</div></div>
+        <div class="stat-card"><div class="stat-number" id="r-stat-dist">—</div><div class="stat-label">Top distribuidor</div></div>
+      </div>
+
+      <div class="report-grid">
+        <div class="chart-box">
+          <div class="chart-title">Vendas por Distribuidor</div>
+          <div class="chart-sub" id="chart1-sub">—</div>
+          <canvas id="chart-dist"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Produtos Mais Vendidos</div>
+          <div class="chart-sub" id="chart2-sub">—</div>
+          <canvas id="chart-prod"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Detalhe (últimos 30 eventos)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th><th>Distribuidor</th><th>Produto</th><th>Qtd</th><th>Preço unit</th><th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="r-sales-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
 <script>
-/**
- * --- BANCO DE DADOS DE COMIDA (FOOD_DB) ---
- * Prioridade: Pratos apetitosos para o Menu do Chef
- */
-const FOOD_DB = {
-    starters: [
-        { name: "Bruschetta de Tomate Confit", desc: "Pão italiano tostado, manjericão fresco e alho.", typeMatch: "tinto_leve" },
-        { name: "Carpaccio de Carne", desc: "Lâminas finas de carne, alcaparras, parmesão e mostarda.", typeMatch: "rose" },
-        { name: "Ceviche de Peixe Branco", desc: "Marinado no limão, cebola roxa, coentro e pimenta.", typeMatch: "branco_acido" },
-        { name: "Salada Caprese", desc: "Mussarela de búfala, tomate caqui e pesto de manjericão.", typeMatch: "branco_leve" },
-        { name: "Dadinhos de Tapioca", desc: "Com geleia de pimenta.", typeMatch: "espumante" }
-    ],
-    mains: [
-        { name: "Risoto de Funghi Secchi", desc: "Arroz arbóreo cremoso com cogumelos hidratados.", typeMatch: "tinto_medio" },
-        { name: "Bife Ancho na Brasa", desc: "Corte alto e suculento com farofa de ovos.", typeMatch: "tinto_encorpado" },
-        { name: "Salmão Grelhado", desc: "Com molho de maracujá e purê de batata doce.", typeMatch: "branco_encorpado" },
-        { name: "Bacalhau à Gomes de Sá", desc: "Lombo de bacalhau, batatas, ovos e azeitonas pretas.", typeMatch: "branco_encorpado" },
-        { name: "Costela Bovina Assada", desc: "Cozida lentamente por 12 horas.", typeMatch: "tinto_encorpado" },
-        { name: "Massas ao Molho Pesto", desc: "Espaguete grano duro com manjericão e nozes.", typeMatch: "branco_leve" }
-    ],
-    desserts: [
-        { name: "Petit Gâteau de Chocolate", desc: "Bolinho quente com sorvete de baunilha.", typeMatch: "porto" },
-        { name: "Tiramisu Clássico", desc: "Biscoito champagne, café e creme mascarpone.", typeMatch: "porto" },
-        { name: "Cheesecake de Frutas Vermelhas", desc: "Base crocante com calda de morango e amora.", typeMatch: "porto" },
-        { name: "Torta de Limão", desc: "Massa podre com merengue maçaricado.", typeMatch: "espumante" }
-    ]
-};
+/* ================================================
+   CONSTANTS & DEFAULT DATA
+   ================================================ */
+const KEYS = { DIST: 'SP_DISTRIBUTORS', PROD: 'SP_PRODUCTS', SALES: 'SP_SALES' };
 
-/**
- * --- BANCO DE DADOS DE VINHOS (WINE_DB) ---
- */
-const WINE_DB = [
-    // ITÁLIA
-    { id: '208', name: "Ca Montebello Pinot Nero", type: 'tinto', grapes: ['Pinot Noir'], region: "Lombardia", body: 'leve', price: 80.00 },
-    { id: '412', name: "Carpino Garda DOC Merlot", type: 'tinto', grapes: ['Merlot'], region: "Garda", body: 'medio', price: 235.32 },
-    { id: '355', name: "La Fogliata Primitivo", type: 'tinto', grapes: ['Primitivo'], region: "Puglia", body: 'medio', price: 59.18 },
-    { id: '414', name: "Lugana DOC Turbiana", type: 'branco', grapes: ['Turbiana'], region: "Garda", body: 'medio', price: 134.62 },
-    { id: '3000211', name: "Gaggiarone Croatina", type: 'tinto', grapes: ['Croatina'], region: "Lombardia", body: 'encorpado', price: 136.74 },
-    
-    // FRANÇA
-    { id: '220', name: "Charming Rabbit Chardonnay", type: 'branco', grapes: ['Chardonnay'], region: "Languedoc", body: 'encorpado', price: 60.00 },
-    { id: '223', name: "Mr. Rabbit Cabernet", type: 'tinto', grapes: ['Cabernet Sauvignon'], region: "Languedoc", body: 'encorpado', price: 50.00 },
-    
-    // PORTUGAL
-    { id: '446', name: "Pescada Alvarinho", type: 'branco', grapes: ['Alvarinho'], region: "Verde", body: 'medio', price: 127.55 },
-    { id: '160', name: "Porta 6 Verde DOC", type: 'branco', grapes: ['Loureiro'], region: "Verde", body: 'leve', price: 55.12 },
-    { id: '3000439', name: "Cabriz Rosé", type: 'rose', grapes: ['Alfrocheiro'], region: "Dão", body: 'leve', price: 59.71 },
-    { id: '170', name: "Porta 6 Reserva Tinto", type: 'tinto', grapes: ['Syrah'], region: "Lisboa", body: 'encorpado', price: 80.91 },
-    { id: '448', name: "Cabriz Touriga Nacional", type: 'tinto', grapes: ['Touriga Nacional'], region: "Dão", body: 'encorpado', price: 110.94 },
-    
-    // PORTOS
-    { id: '350', name: "Porto Ruby Martha's", type: 'porto', grapes: ['Blend'], region: "Porto", body: 'doce', price: 63.60 },
-    { id: '353', name: "Porto 10 Anos", type: 'porto', grapes: ['Blend'], region: "Porto", body: 'doce', price: 194.33 },
-    
-    // ESPANHA
-    { id: '191', name: "Cava Bonaval Rosé", type: 'espumante', grapes: ['Garnacha'], region: "Jumilla", body: 'leve', price: 46.78 }
+const DEFAULT_WINES = [
+  { id:'208',      code:'208',      name:'Ca Montebello Pinot Nero',  type:'tinto',    grapes:'Pinot Noir',          region:'Lombardia, Itália', body:'leve',      price:80.00,   priceBox:440.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'412',      code:'412',      name:'Carpino Garda DOC Merlot',  type:'tinto',    grapes:'Merlot',              region:'Garda, Itália',     body:'medio',     price:235.32,  priceBox:1300.00, unitsBox:6, ml:750, status:'ativo' },
+  { id:'355',      code:'355',      name:'La Fogliata Primitivo',     type:'tinto',    grapes:'Primitivo',           region:'Puglia, Itália',    body:'medio',     price:59.18,   priceBox:330.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'414',      code:'414',      name:'Lugana DOC Turbiana',       type:'branco',   grapes:'Turbiana',            region:'Garda, Itália',     body:'medio',     price:134.62,  priceBox:750.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'3000211',  code:'3000211',  name:'Gaggiarone Croatina',       type:'tinto',    grapes:'Croatina',            region:'Lombardia, Itália', body:'encorpado', price:136.74,  priceBox:770.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'220',      code:'220',      name:'Charming Rabbit Chardonnay',type:'branco',   grapes:'Chardonnay',          region:'Languedoc, França', body:'encorpado', price:60.00,   priceBox:330.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'223',      code:'223',      name:'Mr. Rabbit Cabernet',       type:'tinto',    grapes:'Cabernet Sauvignon',  region:'Languedoc, França', body:'encorpado', price:50.00,   priceBox:280.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'446',      code:'446',      name:'Pescada Alvarinho',         type:'branco',   grapes:'Alvarinho',           region:'Vinho Verde, PT',   body:'medio',     price:127.55,  priceBox:710.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'160',      code:'160',      name:'Porta 6 Verde DOC',         type:'branco',   grapes:'Loureiro',            region:'Vinho Verde, PT',   body:'leve',      price:55.12,   priceBox:300.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'3000439',  code:'3000439',  name:'Cabriz Rosé',               type:'rose',     grapes:'Alfrocheiro',         region:'Dão, Portugal',     body:'leve',      price:59.71,   priceBox:330.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'170',      code:'170',      name:'Porta 6 Reserva Tinto',     type:'tinto',    grapes:'Syrah',               region:'Lisboa, Portugal',  body:'encorpado', price:80.91,   priceBox:450.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'448',      code:'448',      name:'Cabriz Touriga Nacional',   type:'tinto',    grapes:'Touriga Nacional',    region:'Dão, Portugal',     body:'encorpado', price:110.94,  priceBox:620.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'350',      code:'350',      name:"Porto Ruby Martha's",       type:'porto',    grapes:'Blend',               region:'Porto, Portugal',   body:'doce',      price:63.60,   priceBox:360.00,  unitsBox:6, ml:750, status:'ativo' },
+  { id:'353',      code:'353',      name:'Porto 10 Anos',             type:'porto',    grapes:'Blend',               region:'Porto, Portugal',   body:'doce',      price:194.33,  priceBox:1100.00, unitsBox:6, ml:750, status:'ativo' },
+  { id:'191',      code:'191',      name:'Cava Bonaval Rosé',         type:'espumante',grapes:'Garnacha',            region:'Jumilla, Espanha',  body:'leve',      price:46.78,   priceBox:260.00,  unitsBox:6, ml:750, status:'ativo' },
 ];
 
-const app = {
-    formatBRL: function(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); },
-
-    init: function() {
-        this.populateSelect('wineSelector1');
-        this.populateSelect('wineSelector2');
-    },
-
-    populateSelect: function(elId) {
-        const sel = document.getElementById(elId);
-        if(!sel) return;
-        sel.innerHTML = '<option value="">-- Escolha um Vinho --</option>';
-        WINE_DB.sort((a,b)=>a.name.localeCompare(b.name)).forEach(w => {
-            const opt = document.createElement('option');
-            opt.value = w.id;
-            opt.textContent = w.name;
-            sel.appendChild(opt);
-        });
-    },
-
-    // 1. HARMONIZAÇÃO POR VINHO (Input Vinho -> Output Comida)
-    harmonizeSingleWine: function() {
-        const id = document.getElementById('wineSelector1').value;
-        const res = document.getElementById('pairingResult');
-        if(!id) { res.innerHTML='<p style="color:red">Selecione um vinho.</p>'; res.style.display='block'; return; }
-        
-        const wine = WINE_DB.find(w => w.id === id);
-        let pairs = [];
-        // Lógica simples de sugestão de prato
-        if(wine.type === 'espumante') pairs = ["Ostras Frescas", "Frituras (Coxinha/Tempurá)", "Sushi Variado"];
-        else if(wine.type === 'porto') pairs = ["Queijo Roquefort", "Chocolate 70% Cacau", "Cheesecake de Frutas Vermelhas"];
-        else if(wine.type === 'branco') pairs = wine.body==='leve' ? ["Salada Caesar", "Peixe Grelhado", "Frutos do Mar"] : ["Risoto de Brie", "Salmão ao Molho Maracujá", "Lombo de Porco"];
-        else if(wine.type === 'tinto') pairs = wine.body==='encorpado' ? ["Picanha na Brasa", "Costela Assada", "Feijoada"] : ["Pizza Marguerita", "Massas à Bolonhesa", "Frango Assado"];
-        else pairs = ["Paella Valenciana", "Tábua de Frios", "Camarão Alho e Óleo"];
-
-        res.innerHTML = `<h3>${wine.name}</h3><p><strong>Ideal para acompanhar:</strong></p><ul>${pairs.map(p=>`<li>${p}</li>`).join('')}</ul>`;
-        res.style.display='block';
-    },
-
-    // 2. GERADOR DE CARDÁPIO (Input Random -> Output COMIDA + Vinho)
-    generateFoodMenu: function() {
-        // Seleção aleatória de PRATOS
-        const starter = FOOD_DB.starters[Math.floor(Math.random() * FOOD_DB.starters.length)];
-        const main = FOOD_DB.mains[Math.floor(Math.random() * FOOD_DB.mains.length)];
-        const dessert = FOOD_DB.desserts[Math.floor(Math.random() * FOOD_DB.desserts.length)];
-
-        // Função auxiliar para encontrar o vinho baseado no "typeMatch" do prato
-        const findWineForDish = (matchType) => {
-            if(matchType === 'tinto_leve') return WINE_DB.find(w => w.type === 'tinto' && w.body === 'leve') || WINE_DB.find(w=>w.type==='tinto');
-            if(matchType === 'tinto_medio') return WINE_DB.find(w => w.type === 'tinto' && w.body === 'medio') || WINE_DB.find(w=>w.type==='tinto');
-            if(matchType === 'tinto_encorpado') return WINE_DB.find(w => w.type === 'tinto' && w.body === 'encorpado') || WINE_DB.find(w=>w.type==='tinto');
-            
-            if(matchType === 'branco_acido') return WINE_DB.find(w => w.grapes.includes('Alvarinho') || w.grapes.includes('Loureiro')) || WINE_DB.find(w=>w.type==='branco');
-            if(matchType === 'branco_leve') return WINE_DB.find(w => w.type === 'branco' && w.body === 'leve') || WINE_DB.find(w=>w.type==='branco');
-            if(matchType === 'branco_encorpado') return WINE_DB.find(w => w.type === 'branco' && w.body === 'encorpado') || WINE_DB.find(w=>w.type==='branco');
-            
-            if(matchType === 'rose') return WINE_DB.find(w => w.type === 'rose') || WINE_DB[0];
-            if(matchType === 'espumante') return WINE_DB.find(w => w.type === 'espumante') || WINE_DB[0];
-            if(matchType === 'porto') return WINE_DB.find(w => w.type === 'porto') || WINE_DB[0];
-            
-            return WINE_DB[0];
-        };
-
-        const wine1 = findWineForDish(starter.typeMatch);
-        const wine2 = findWineForDish(main.typeMatch);
-        const wine3 = findWineForDish(dessert.typeMatch);
-
-        const total = wine1.price + wine2.price + wine3.price;
-
-        const html = `
-            <div class="menu-paper">
-                <div style="text-align:center; margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;">
-                    <h3 style="margin:0; color:#333;">MENU DO DIA</h3>
-                </div>
-
-                <div>
-                    <span class="course-title">1. Entrada</span>
-                    <span class="dish-name">${starter.name}</span>
-                    <span class="dish-description">${starter.desc}</span>
-                    <div class="wine-pairing-note">
-                        🍷 <strong>Sugestão:</strong> ${wine1.name} (${this.formatBRL(wine1.price)})
-                    </div>
-                </div>
-
-                <div>
-                    <span class="course-title">2. Prato Principal</span>
-                    <span class="dish-name">${main.name}</span>
-                    <span class="dish-description">${main.desc}</span>
-                    <div class="wine-pairing-note">
-                        🍷 <strong>Sugestão:</strong> ${wine2.name} (${this.formatBRL(wine2.price)})
-                    </div>
-                </div>
-
-                <div>
-                    <span class="course-title">3. Sobremesa</span>
-                    <span class="dish-name">${dessert.name}</span>
-                    <span class="dish-description">${dessert.desc}</span>
-                    <div class="wine-pairing-note">
-                        🍷 <strong>Sugestão:</strong> ${wine3.name} (${this.formatBRL(wine3.price)})
-                    </div>
-                </div>
-                
-                <hr>
-                <div style="text-align:right;">
-                    <strong>Total dos Vinhos: ${this.formatBRL(total)}</strong>
-                </div>
-            </div>
-        `;
-        document.getElementById('menuResult').innerHTML = html;
-        document.getElementById('menuResult').style.display='block';
-    },
-
-    // 3. ORÇAMENTO
-    simulateBudget: function(limit) {
-        let cart = [], total = 0, pool = WINE_DB.filter(w=>w.price<=limit).sort(()=>Math.random()-0.5);
-        for(let w of pool) { if(total+w.price<=limit && cart.length<5) { cart.push(w); total+=w.price; } }
-        let html = `<h3>Kit até ${this.formatBRL(limit)}</h3>`;
-        if(!cart.length) html+="<p>Sem opções.</p>";
-        else {
-            html+=`<ul>${cart.map(c=>`<li>${c.name} - <strong>${this.formatBRL(c.price)}</strong></li>`).join('')}</ul>`;
-            html+=`<p class="total-row" style="padding:10px;">Total: ${this.formatBRL(total)}</p>`;
-        }
-        document.getElementById('budgetResult').innerHTML = html;
-        document.getElementById('budgetResult').style.display='block';
-    },
-
-    // 4. WINE BRIDGING
-    pairWineWithWine: function() {
-        const id = document.getElementById('wineSelector2').value;
-        const res = document.getElementById('winePairingResult');
-        if(!id) { res.innerHTML='<p style="color:red">Selecione o vinho.</p>'; res.style.display='block'; return; }
-
-        const ref = WINE_DB.find(w => w.id === id);
-        let candidates = [];
-        let strategy = "";
-        let reason = "";
-        const baseFilter = (w) => w.id !== ref.id;
-
-        if (ref.type === 'branco') {
-            if (ref.body === 'leve') {
-                candidates = WINE_DB.filter(w => baseFilter(w) && (w.type==='rose' || (w.type==='tinto' && w.body==='leve')));
-                strategy = "Continuidade de Acidez";
-                reason = "Vinhos com frescor para manter a vivacidade.";
-            } else {
-                candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='tinto' && w.body==='medio');
-                strategy = "Evolução de Peso";
-                reason = "Subindo degraus de estrutura.";
-            }
-        } 
-        else if (ref.type === 'tinto') {
-            if (ref.body === 'encorpado') {
-                candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='porto');
-                strategy = "Gran Finale";
-                reason = "Apenas vinhos fortificados suportam o peso de um grande tinto.";
-            } else {
-                candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='tinto' && w.body==='encorpado');
-                strategy = "Crescendo";
-                reason = "Evoluindo para taninos mais marcantes.";
-            }
-        }
-        else if (ref.type === 'porto') {
-            candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='espumante');
-            strategy = "Refresh";
-            reason = "Limpando o açúcar do palato.";
-        }
-        else { 
-            candidates = WINE_DB.filter(w => baseFilter(w) && w.type==='branco');
-            strategy = "Aromático";
-            reason = "Entrada para vinhos brancos complexos.";
-        }
-
-        if (candidates.length === 0) {
-            candidates = WINE_DB.filter(w => baseFilter(w) && w.type !== ref.type); 
-            reason = "Sugestões variadas para mudar o estilo.";
-        }
-
-        candidates.sort((a, b) => b.price - a.price);
-        const top3 = candidates.slice(0, 3);
-
-        let html = `
-            <div class="source-wine-display">
-                <small>VOCÊ ESCOLHEU</small><br>
-                <strong style="font-size:1.2em; color:var(--primary)">${ref.name}</strong><br>
-                <span>${this.formatBRL(ref.price)}</span>
-            </div>
-            
-            <div style="text-align:center; margin-bottom:15px; color:var(--secondary); font-weight:bold;">
-                &darr; COMBINAÇÕES IDEAIS &darr;
-            </div>
-
-            <div class="suggestions-grid">
-        `;
-
-        top3.forEach((cand, index) => {
-            let label = index === 0 ? "Premium" : (index === 1 ? "Intermediário" : "Best Value");
-            let labelClass = index === 0 ? "premium" : (index === top3.length - 1 ? "value" : "");
-            
-            html += `
-                <div class="suggestion-card">
-                    <span class="rank-label ${labelClass}">${label}</span>
-                    <div>
-                        <strong style="color:#004085; display:block; margin-bottom:5px; margin-top:5px;">${cand.name}</strong>
-                        <small style="color:#666;">${cand.region} | ${cand.grapes[0]}</small>
-                    </div>
-                    <span class="price-badge">${this.formatBRL(cand.price)}</span>
-                </div>
-            `;
-        });
-
-        html += `</div>
-            <div class="match-explanation">
-                <span class="tag" style="background:var(--accent); color:white;">${strategy}</span>
-                <p>${reason}</p>
-            </div>`;
-
-        res.innerHTML = html;
-        res.style.display = 'block';
-    }
+const FOOD_DB = {
+  starters: [
+    { name:'Bruschetta de Tomate Confit', desc:'Pão italiano tostado, manjericão fresco e alho.', match:'tinto_leve' },
+    { name:'Carpaccio de Carne',          desc:'Lâminas finas de carne, alcaparras, parmesão e mostarda.', match:'rose' },
+    { name:'Ceviche de Peixe Branco',     desc:'Marinado no limão, cebola roxa, coentro e pimenta.', match:'branco_acido' },
+    { name:'Salada Caprese',              desc:'Mussarela de búfala, tomate caqui e pesto de manjericão.', match:'branco_leve' },
+    { name:'Dadinhos de Tapioca',         desc:'Com geleia de pimenta.', match:'espumante' },
+  ],
+  mains: [
+    { name:'Risoto de Funghi Secchi',   desc:'Arroz arbóreo cremoso com cogumelos hidratados.', match:'tinto_medio' },
+    { name:'Bife Ancho na Brasa',       desc:'Corte alto e suculento com farofa de ovos.', match:'tinto_enc' },
+    { name:'Salmão Grelhado',           desc:'Com molho de maracujá e purê de batata doce.', match:'branco_enc' },
+    { name:'Bacalhau à Gomes de Sá',    desc:'Lombo, batatas, ovos e azeitonas pretas.', match:'branco_enc' },
+    { name:'Costela Bovina Assada',     desc:'Cozida lentamente por 12 horas.', match:'tinto_enc' },
+    { name:'Massas ao Molho Pesto',     desc:'Espaguete grano duro com manjericão e nozes.', match:'branco_leve' },
+  ],
+  desserts: [
+    { name:'Petit Gâteau de Chocolate', desc:'Bolinho quente com sorvete de baunilha.', match:'porto' },
+    { name:'Tiramisu Clássico',         desc:'Biscoito champagne, café e creme mascarpone.', match:'porto' },
+    { name:'Cheesecake de Frutas Vermelhas', desc:'Base crocante com calda de morango e amora.', match:'porto' },
+    { name:'Torta de Limão',            desc:'Massa podre com merengue maçaricado.', match:'espumante' },
+  ]
 };
 
-document.addEventListener('DOMContentLoaded', ()=>app.init());
+/* ================================================
+   STORAGE HELPERS
+   ================================================ */
+const store = {
+  get(key)       { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } },
+  set(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
+  uid()          { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); },
+};
+
+function getProducts()     { const d = store.get(KEYS.PROD); return d.length ? d : DEFAULT_WINES; }
+function getDistributors() { return store.get(KEYS.DIST); }
+function getSales()        { return store.get(KEYS.SALES); }
+
+/* ================================================
+   TOAST
+   ================================================ */
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 3200);
+}
+
+/* ================================================
+   VALIDATION HELPERS
+   ================================================ */
+function clearErrors(containerId, fieldIds=[]) {
+  const c = document.getElementById(containerId);
+  if (c) { c.classList.remove('show'); c.textContent = ''; }
+  fieldIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('field-error');
+  });
+}
+
+function requireFields({ containerId, rules }) {
+  // rules: [{id, label, test?}]
+  const errors = [];
+  rules.forEach(r => {
+    const el = document.getElementById(r.id);
+    const val = (el && 'value' in el) ? String(el.value).trim() : '';
+    const ok  = r.test ? r.test(val) : Boolean(val);
+    if (!ok) {
+      errors.push(`• ${r.label}`);
+      if (el) el.classList.add('field-error');
+    } else {
+      if (el) el.classList.remove('field-error');
+    }
+  });
+
+  const box = document.getElementById(containerId);
+  if (errors.length) {
+    if (box) {
+      box.textContent = 'Preencha corretamente os campos obrigatórios:\n' + errors.join('\n');
+      box.classList.add('show');
+    }
+    return false;
+  }
+
+  if (box) { box.classList.remove('show'); box.textContent = ''; }
+  return true;
+}
+
+/* ================================================
+   PAGE / TAB SWITCHING
+   ================================================ */
+function switchPage(page) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+
+  // mark tab
+  const tabText = page === 'sommelier' ? 'Sommelier' : (page === 'admin' ? 'Admin' : 'Relatórios');
+  document.querySelectorAll('.nav-tab').forEach(t => { if (t.textContent.includes(tabText)) t.classList.add('active'); });
+
+  if (page === 'sommelier') { app.populateSelects(); }
+  if (page === 'admin') {
+    admin.renderStats();
+    admin.renderDistribuidores();
+    admin.renderProdutos();
+    admin.populateDistSelect();
+    sales.populateSalesForm();
+    sales.renderTable();
+  }
+  if (page === 'reports') {
+    reports.ensureDefaults();
+    reports.render();
+  }
+}
+
+function switchAdmin(panel) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('admin-' + panel).classList.add('active');
+
+  const label = panel === 'distribuidores' ? 'Distribuidores' : (panel === 'produtos' ? 'Produtos' : 'Vendas');
+  document.querySelectorAll('.sub-tab').forEach(t => { if (t.textContent.includes(label)) t.classList.add('active'); });
+
+  admin.renderStats();
+  if (panel === 'produtos') { admin.renderProdutos(); admin.populateDistSelect(); }
+  if (panel === 'distribuidores') { admin.renderDistribuidores(); }
+  if (panel === 'vendas') { sales.populateSalesForm(); sales.renderTable(); }
+}
+
+/* ================================================
+   SOMMELIER APP
+   ================================================ */
+const app = {
+  brl: v => Number(v).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }),
+
+  populateSelects() {
+    const wines = getProducts().filter(w => w.status !== 'inativo');
+    ['wineSelector1','wineSelector2'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const val = sel.value;
+      sel.innerHTML = '<option value="">-- Escolha um Vinho --</option>';
+      [...wines].sort((a,b) => a.name.localeCompare(b.name)).forEach(w => {
+        const o = document.createElement('option');
+        o.value = w.id || w.code;
+        o.textContent = w.name;
+        if (o.value === val) o.selected = true;
+        sel.appendChild(o);
+      });
+    });
+  },
+
+  getWine(id) { return getProducts().find(w => (w.id === id || w.code === id)); },
+
+  matchWine(matchKey) {
+    const db = getProducts().filter(w => w.status !== 'inativo');
+    const find = (...types) => {
+      for (const [t, b] of types) {
+        const r = db.find(w => w.type === t && (b ? w.body === b : true));
+        if (r) return r;
+      }
+      return db[0];
+    };
+    switch(matchKey) {
+      case 'tinto_leve':    return find(['tinto','leve'],['tinto','medio'],['tinto',null]);
+      case 'tinto_medio':   return find(['tinto','medio'],['tinto','encorpado'],['tinto',null]);
+      case 'tinto_enc':     return find(['tinto','encorpado'],['tinto','medio'],['tinto',null]);
+      case 'branco_acido':  return find(['branco','leve'],['branco','medio'],['branco',null]);
+      case 'branco_leve':   return find(['branco','leve'],['branco',null]);
+      case 'branco_enc':    return find(['branco','encorpado'],['branco','medio'],['branco',null]);
+      case 'rose':          return find(['rose',null],['branco',null]);
+      case 'espumante':     return find(['espumante',null]);
+      case 'porto':         return find(['porto',null]);
+      default: return db[0];
+    }
+  },
+
+  harmonize() {
+    const id = document.getElementById('wineSelector1').value;
+    const el = document.getElementById('pairingResult');
+    if (!id) { el.innerHTML='<p style="color:red">⚠️ Selecione um vinho.</p>'; el.style.display='block'; return; }
+    const w = this.getWine(id);
+    if (!w) return;
+    let pairs = [];
+    if (w.type==='espumante') pairs=['Ostras Frescas','Frituras (Coxinha/Tempurá)','Sushi Variado','Saladas Leves'];
+    else if (w.type==='porto') pairs=['Queijo Roquefort','Chocolate 70% Cacau','Cheesecake de Frutas Vermelhas','Tiramisu'];
+    else if (w.type==='branco') pairs=w.body==='leve'?['Salada Caesar','Peixe Grelhado','Frutos do Mar','Ceviche']:['Risoto de Brie','Salmão ao Molho Maracujá','Lombo de Porco','Bacalhau'];
+    else if (w.type==='tinto') pairs=w.body==='encorpado'?['Picanha na Brasa','Costela Assada','Feijoada','Cordeiro']:['Pizza Marguerita','Massas à Bolonhesa','Frango Assado','Risoto de Funghi'];
+    else pairs=['Paella Valenciana','Tábua de Frios','Camarão Alho e Óleo'];
+    el.innerHTML=`<h3 style="margin:0 0 8px">🍷 ${w.name}</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:12px">${w.region||''} ${w.grapes?'· '+w.grapes:''} · ${this.brl(w.price)}</p>
+      <strong>Ideal para acompanhar:</strong>
+      <ul style="margin:10px 0 0;padding-left:20px">${pairs.map(p=>`<li>${p}</li>`).join('')}</ul>`;
+    el.style.display='block';
+  },
+
+  generateMenu() {
+    const r = a => a[Math.floor(Math.random()*a.length)];
+    const s=r(FOOD_DB.starters), m=r(FOOD_DB.mains), d=r(FOOD_DB.desserts);
+    const w1=this.matchWine(s.match), w2=this.matchWine(m.match), w3=this.matchWine(d.match);
+    const total=Number(w1.price)+Number(w2.price)+Number(w3.price);
+    const course = (label,item,wine) => `
+      <div style="margin-bottom:20px">
+        <div class="course-title">${label}</div>
+        <span class="dish-name">${item.name}</span>
+        <span class="dish-desc">${item.desc}</span>
+        <div class="pairing-note">🍷 <strong>Sugestão:</strong> ${wine.name} &nbsp;(${this.brl(wine.price)})</div>
+      </div>`;
+    document.getElementById('menuResult').innerHTML=`
+      <div class="menu-paper">
+        <div style="text-align:center;border-bottom:1px solid #ddd;padding-bottom:12px;margin-bottom:16px">
+          <strong style="font-size:1.1rem">MENU DO DIA</strong>
+        </div>
+        ${course('1. Entrada',s,w1)}
+        ${course('2. Prato Principal',m,w2)}
+        ${course('3. Sobremesa',d,w3)}
+        <hr style="margin:12px 0">
+        <div style="text-align:right"><strong>Total dos vinhos: ${this.brl(total)}</strong></div>
+      </div>`;
+    document.getElementById('menuResult').style.display='block';
+  },
+
+  budget(limit) {
+    const pool = getProducts().filter(w => w.status!=='inativo' && Number(w.price)<=limit).sort(()=>Math.random()-.5);
+    let cart=[], total=0;
+    for (const w of pool) { if (total+Number(w.price)<=limit && cart.length<5) { cart.push(w); total+=Number(w.price); } }
+    let html=`<h3 style="margin:0 0 12px">Kit até ${this.brl(limit)}</h3>`;
+    if (!cart.length) html+='<p>Nenhum produto disponível nesse orçamento.</p>';
+    else {
+      html+=`<ul style="padding-left:20px;margin:0 0 14px">${cart.map(c=>`<li><strong>${c.name}</strong> — ${this.brl(c.price)}</li>`).join('')}</ul>`;
+      html+=`<div style="text-align:right"><strong>Total: ${this.brl(total)}</strong></div>`;
+    }
+    document.getElementById('budgetResult').innerHTML=html;
+    document.getElementById('budgetResult').style.display='block';
+  },
+
+  bridging() {
+    const id = document.getElementById('wineSelector2').value;
+    const el = document.getElementById('bridgeResult');
+    if (!id) { el.innerHTML='<p style="color:red">⚠️ Selecione o vinho.</p>'; el.style.display='block'; return; }
+    const ref=this.getWine(id); if (!ref) return;
+    const db=getProducts().filter(w => (w.id||w.code)!==id && w.status!=='inativo');
+    let cands=[], strategy='', reason='';
+    if (ref.type==='branco') {
+      cands = ref.body==='leve' ? db.filter(w=>w.type==='rose'||(w.type==='tinto'&&w.body==='leve')) : db.filter(w=>w.type==='tinto'&&w.body==='medio');
+      strategy=ref.body==='leve'?'Continuidade de Acidez':'Evolução de Peso';
+      reason=ref.body==='leve'?'Vinhos com frescor para manter a vivacidade.':'Subindo degraus de estrutura.';
+    } else if (ref.type==='tinto') {
+      cands = ref.body==='encorpado' ? db.filter(w=>w.type==='porto') : db.filter(w=>w.type==='tinto'&&w.body==='encorpado');
+      strategy=ref.body==='encorpado'?'Gran Finale':'Crescendo';
+      reason=ref.body==='encorpado'?'Vinhos fortificados como fechamento ideal.':'Evoluindo para taninos mais marcantes.';
+    } else if (ref.type==='porto') {
+      cands=db.filter(w=>w.type==='espumante'); strategy='Refresh'; reason='Limpando o açúcar do palato.';
+    } else {
+      cands=db.filter(w=>w.type==='branco'); strategy='Aromático'; reason='Entrada para brancos mais complexos.';
+    }
+    if (!cands.length) { cands=db.filter(w=>w.type!==ref.type); reason='Sugestões variadas para mudar o estilo.'; }
+    cands.sort((a,b)=>Number(b.price)-Number(a.price));
+    const top3=cands.slice(0,3);
+    const labels=['Premium','Intermediário','Best Value'];
+    const lClass=['premium','',''];
+    el.innerHTML=`
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;margin-bottom:16px">
+        <small style="color:var(--muted);font-weight:900">VOCÊ ESCOLHEU</small><br>
+        <strong style="font-size:1.1em;color:var(--primary)">${ref.name}</strong><br>
+        <span style="color:var(--muted)">${this.brl(ref.price)}</span>
+      </div>
+      <div style="text-align:center;margin-bottom:14px;color:var(--secondary);font-weight:900">▼ COMBINAÇÕES IDEAIS ▼</div>
+      <div class="suggestions-grid">
+        ${top3.map((c,i)=>`
+          <div class="suggestion-card">
+            <span class="rank-label ${lClass[i]}">${labels[i]}</span>
+            <div>
+              <strong style="color:#004085;display:block;margin:8px 0 4px">${c.name}</strong>
+              <small style="color:var(--muted)">${c.region||''} · ${c.grapes||''}</small>
+            </div>
+            <span class="price-badge">${this.brl(c.price)}</span>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:16px;padding:10px 14px;background:#f1f2f6;border-radius:6px">
+        <span style="background:var(--accent);color:#fff;padding:2px 10px;border-radius:50px;font-size:.78rem;font-weight:900">${strategy}</span>
+        <span style="margin-left:10px;font-size:.9rem;font-weight:800">${reason}</span>
+      </div>`;
+    el.style.display='block';
+  }
+};
+
+/* ================================================
+   BACKUP IMPORT/EXPORT
+   ================================================ */
+const backup = {
+  exportJSON() {
+    const payload = {
+      version: '6.0',
+      exportedAt: new Date().toISOString(),
+      data: {
+        distributors: getDistributors(),
+        products: store.get(KEYS.PROD).length ? store.get(KEYS.PROD) : DEFAULT_WINES,
+        sales: getSales()
+      }
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sp-importadora-backup_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 800);
+    toast('Backup JSON exportado!');
+  },
+
+  clearImportUI() {
+    const f = document.getElementById('import-file');
+    const t = document.getElementById('import-text');
+    if (f) f.value = '';
+    if (t) t.value = '';
+    const e = document.getElementById('import-errors');
+    if (e) { e.classList.remove('show'); e.textContent = ''; }
+  },
+
+  async importFromUI() {
+    clearErrors('import-errors');
+
+    const fileInput = document.getElementById('import-file');
+    const textArea  = document.getElementById('import-text');
+
+    let raw = (textArea?.value || '').trim();
+
+    if (!raw && fileInput?.files?.length) {
+      raw = await fileInput.files[0].text();
+    }
+
+    if (!raw) {
+      const e = document.getElementById('import-errors');
+      e.textContent = 'Informe um arquivo .json ou cole o JSON no campo.';
+      e.classList.add('show');
+      return;
+    }
+
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch {
+      const e = document.getElementById('import-errors');
+      e.textContent = 'JSON inválido. Verifique a formatação.';
+      e.classList.add('show');
+      return;
+    }
+
+    const data = parsed?.data || parsed;
+    const dists = data.distributors;
+    const prods = data.products;
+    const sales = data.sales;
+
+    const errors = [];
+    if (dists && !Array.isArray(dists)) errors.push('• distributors precisa ser um array');
+    if (prods && !Array.isArray(prods)) errors.push('• products precisa ser um array');
+    if (sales && !Array.isArray(sales)) errors.push('• sales precisa ser um array');
+
+    if (errors.length) {
+      const e = document.getElementById('import-errors');
+      e.textContent = 'Estrutura inválida:\n' + errors.join('\n');
+      e.classList.add('show');
+      return;
+    }
+
+    if (dists) store.set(KEYS.DIST, dists);
+    if (prods) store.set(KEYS.PROD, prods);
+    if (sales) store.set(KEYS.SALES, sales);
+
+    toast('Backup importado com sucesso!');
+    this.clearImportUI();
+
+    // refresh UIs
+    app.populateSelects();
+    admin.renderStats();
+    admin.renderDistribuidores();
+    admin.renderProdutos();
+    admin.populateDistSelect();
+    sales.populateSalesForm();
+    sales.renderTable();
+    reports.render();
+  },
+
+  clearAllData() {
+    if (!confirm('Tem certeza? Isso apaga distribuidores, produtos e vendas (tudo no seu navegador).')) return;
+    store.set(KEYS.DIST, []);
+    store.set(KEYS.PROD, []);
+    store.set(KEYS.SALES, []);
+    toast('Tudo limpo (reset).','error');
+    app.populateSelects();
+    admin.renderStats();
+    admin.renderDistribuidores();
+    admin.renderProdutos();
+    sales.populateSalesForm();
+    sales.renderTable();
+    reports.render();
+  }
+};
+
+/* ================================================
+   ADMIN
+   ================================================ */
+const admin = {
+
+  renderStats() {
+    const prods = getProducts();
+    const dists = getDistributors();
+    const sales = getSales();
+
+    const last30 = reports.filterSales(sales, reports.daysAgo(30), reports.today());
+    const rev30  = last30.reduce((s,x)=>s + x.qty * x.unitPrice, 0);
+
+    const topProd = reports.topProducts(last30, 1)[0];
+
+    document.getElementById('stat-dist').textContent  = dists.length;
+    document.getElementById('stat-prod').textContent  = prods.length;
+    document.getElementById('stat-sales').textContent = sales.length;
+    document.getElementById('stat-rev').textContent   = 'R$' + rev30.toFixed(0);
+
+    const avg = prods.length ? prods.reduce((s,p)=>s+Number(p.price),0)/prods.length : 0;
+    document.getElementById('stat-avg').textContent   = 'R$' + avg.toFixed(0);
+    document.getElementById('stat-top').textContent   = topProd ? topProd.label.slice(0,22) + (topProd.label.length>22?'…':'') : '—';
+  },
+
+  saveDistribuidor() {
+    clearErrors('d-errors', ['d-nome','d-cidade','d-estado']);
+    const ok = requireFields({
+      containerId: 'd-errors',
+      rules: [
+        { id:'d-nome',   label:'Nome' },
+        { id:'d-cidade', label:'Cidade' },
+        { id:'d-estado', label:'Estado (UF)' },
+      ]
+    });
+    if (!ok) return;
+
+    const dist = {
+      id:     document.getElementById('d-edit-id').value || store.uid(),
+      nome:   document.getElementById('d-nome').value.trim(),
+      cidade: document.getElementById('d-cidade').value.trim(),
+      estado: document.getElementById('d-estado').value,
+      cep:    document.getElementById('d-cep').value.trim(),
+      tel:    document.getElementById('d-tel').value.trim(),
+      email:  document.getElementById('d-email').value.trim(),
+      resp:   document.getElementById('d-resp').value.trim(),
+      status: document.getElementById('d-status').value,
+    };
+
+    const list = store.get(KEYS.DIST);
+    const idx  = list.findIndex(d => d.id === dist.id);
+    if (idx >= 0) list[idx] = dist; else list.push(dist);
+    store.set(KEYS.DIST, list);
+
+    toast(idx>=0 ? 'Distribuidor atualizado!' : 'Distribuidor salvo!');
+    this.clearDistribuidorForm();
+    this.renderDistribuidores();
+    this.populateDistSelect();
+    sales.populateSalesForm();
+    this.renderStats();
+  },
+
+  clearDistribuidorForm() {
+    clearErrors('d-errors', ['d-nome','d-cidade','d-estado']);
+    ['d-nome','d-cidade','d-cep','d-tel','d-email','d-resp','d-edit-id'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('d-estado').value='SP';
+    document.getElementById('d-status').value='ativo';
+  },
+
+  editDistribuidor(id) {
+    const d = store.get(KEYS.DIST).find(x=>x.id===id); if (!d) return;
+    this.clearDistribuidorForm();
+    document.getElementById('d-edit-id').value = d.id;
+    document.getElementById('d-nome').value    = d.nome;
+    document.getElementById('d-cidade').value  = d.cidade;
+    document.getElementById('d-estado').value  = d.estado;
+    document.getElementById('d-cep').value     = d.cep;
+    document.getElementById('d-tel').value     = d.tel;
+    document.getElementById('d-email').value   = d.email;
+    document.getElementById('d-resp').value    = d.resp;
+    document.getElementById('d-status').value  = d.status;
+    window.scrollTo({top:0,behavior:'smooth'});
+    document.getElementById('d-nome').focus();
+  },
+
+  deleteDistribuidor(id) {
+    if (!confirm('Remover este distribuidor?')) return;
+    const list = store.get(KEYS.DIST).filter(d=>d.id!==id);
+    store.set(KEYS.DIST, list);
+    toast('Distribuidor removido.','error');
+    this.renderDistribuidores();
+    this.populateDistSelect();
+    sales.populateSalesForm();
+    this.renderStats();
+  },
+
+  renderDistribuidores() {
+    const list = getDistributors();
+    const tb   = document.getElementById('dist-tbody');
+    if (!list.length) {
+      tb.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span>🏭</span>Nenhum distribuidor cadastrado ainda.</div></td></tr>`;
+      return;
+    }
+
+    const statusColor = { ativo:'#d4edda', inativo:'#f8d7da', negociando:'#fff3cd' };
+    tb.innerHTML = list.map((d,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td><strong>${d.nome}</strong></td>
+        <td>${d.cidade}/${d.estado}</td>
+        <td style="font-size:.8rem">${d.cep||'—'}</td>
+        <td>${d.tel||'—'}</td>
+        <td style="font-size:.82rem">${d.email||'—'}</td>
+        <td>${d.resp||'—'}</td>
+        <td><span style="background:${statusColor[d.status]||'#eee'};padding:2px 9px;border-radius:50px;font-size:.75rem;font-weight:900">${d.status}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-info btn-sm" onclick="admin.editDistribuidor('${d.id}')">✏️ Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="admin.deleteDistribuidor('${d.id}')">🗑️</button>
+        </td>
+      </tr>`).join('');
+  },
+
+  importDistCSV() {
+    const raw = document.getElementById('d-csv').value.trim();
+    if (!raw) { toast('Cole o CSV antes de importar.','error'); return; }
+    const lines = raw.split('\n').filter(l=>l.trim());
+    const list  = store.get(KEYS.DIST);
+    let count=0;
+
+    lines.forEach(line => {
+      const p = line.split(';').map(s=>s.trim());
+      if (!p[0] || !p[1] || !p[2]) return;
+      list.push({ id:store.uid(), nome:p[0]||'', cidade:p[1]||'', estado:p[2]||'', cep:p[3]||'', tel:p[4]||'', email:p[5]||'', resp:p[6]||'', status:p[7]||'ativo' });
+      count++;
+    });
+
+    store.set(KEYS.DIST, list);
+    document.getElementById('d-csv').value='';
+    toast(`${count} distribuidor(es) importado(s)!`);
+    this.renderDistribuidores();
+    this.populateDistSelect();
+    sales.populateSalesForm();
+    this.renderStats();
+  },
+
+  populateDistSelect() {
+    const sel = document.getElementById('p-dist');
+    if (!sel) return;
+    const dists = getDistributors();
+    const cur   = sel.value;
+    sel.innerHTML='<option value="">-- Nenhum --</option>';
+    dists.forEach(d => {
+      const o=document.createElement('option');
+      o.value=d.id; o.textContent=d.nome;
+      if(d.id===cur) o.selected=true;
+      sel.appendChild(o);
+    });
+  },
+
+  saveProduto() {
+    clearErrors('p-errors', ['p-codigo','p-nome','p-tipo','p-preco']);
+    const ok = requireFields({
+      containerId: 'p-errors',
+      rules: [
+        { id:'p-codigo', label:'Código' },
+        { id:'p-nome',   label:'Nome' },
+        { id:'p-tipo',   label:'Tipo' },
+        { id:'p-preco',  label:'Preço Unit', test: (v)=>!isNaN(parseFloat(v)) && parseFloat(v) > 0 },
+      ]
+    });
+    if (!ok) return;
+
+    const pid  = document.getElementById('p-edit-id').value || store.uid();
+    const prod = {
+      id:       pid,
+      code:     document.getElementById('p-codigo').value.trim(),
+      name:     document.getElementById('p-nome').value.trim(),
+      type:     document.getElementById('p-tipo').value,
+      body:     document.getElementById('p-corpo').value,
+      region:   document.getElementById('p-regiao').value.trim(),
+      grapes:   document.getElementById('p-uva').value.trim(),
+      price:    parseFloat(document.getElementById('p-preco').value),
+      priceBox: parseFloat(document.getElementById('p-preco-cx').value)||0,
+      unitsBox: parseInt(document.getElementById('p-upcx').value)||6,
+      ml:       parseInt(document.getElementById('p-ml').value)||750,
+      distId:   document.getElementById('p-dist').value,
+      status:   document.getElementById('p-status').value,
+    };
+
+    let list = store.get(KEYS.PROD);
+    if (!list.length) list = [...DEFAULT_WINES];
+    const idx = list.findIndex(p => (p.id===pid) || (p.code===prod.code));
+    if (idx>=0) list[idx]=prod; else list.push(prod);
+    store.set(KEYS.PROD, list);
+
+    toast(idx>=0?'Produto atualizado!':'Produto salvo!');
+    this.clearProdutoForm();
+    this.renderProdutos();
+    this.renderStats();
+    app.populateSelects();
+    sales.populateSalesForm();
+  },
+
+  clearProdutoForm() {
+    clearErrors('p-errors', ['p-codigo','p-nome','p-tipo','p-preco']);
+    ['p-codigo','p-nome','p-regiao','p-uva','p-preco','p-preco-cx','p-upcx','p-ml','p-edit-id'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('p-tipo').value='';
+    document.getElementById('p-corpo').value='';
+    document.getElementById('p-status').value='ativo';
+    document.getElementById('p-dist').value='';
+  },
+
+  editProduto(id) {
+    const prods = getProducts();
+    const p = prods.find(x=>(x.id===id||x.code===id)); if (!p) return;
+    this.clearProdutoForm();
+    document.getElementById('p-edit-id').value   = p.id||p.code;
+    document.getElementById('p-codigo').value    = p.code;
+    document.getElementById('p-nome').value      = p.name;
+    document.getElementById('p-tipo').value      = p.type;
+    document.getElementById('p-corpo').value     = p.body||'';
+    document.getElementById('p-regiao').value    = p.region||'';
+    document.getElementById('p-uva').value       = p.grapes||'';
+    document.getElementById('p-preco').value     = p.price;
+    document.getElementById('p-preco-cx').value  = p.priceBox||'';
+    document.getElementById('p-upcx').value      = p.unitsBox||6;
+    document.getElementById('p-ml').value        = p.ml||750;
+    document.getElementById('p-dist').value      = p.distId||'';
+    document.getElementById('p-status').value    = p.status||'ativo';
+    window.scrollTo({top:0,behavior:'smooth'});
+    document.getElementById('p-nome').focus();
+  },
+
+  deleteProduto(id) {
+    if (!confirm('Remover este produto?')) return;
+    let list = store.get(KEYS.PROD);
+    if (!list.length) list=[...DEFAULT_WINES];
+    store.set(KEYS.PROD, list.filter(p=>p.id!==id && p.code!==id));
+    toast('Produto removido.','error');
+    this.renderProdutos();
+    this.renderStats();
+    app.populateSelects();
+    sales.populateSalesForm();
+  },
+
+  renderProdutos() {
+    const tipo   = document.getElementById('filter-tipo')?.value || '';
+    const search = (document.getElementById('filter-search')?.value || '').toLowerCase();
+    let list = getProducts();
+    if (tipo) list = list.filter(p=>p.type===tipo);
+    if (search) list = list.filter(p => (p.name||'').toLowerCase().includes(search) || String(p.code||'').includes(search));
+
+    const tb = document.getElementById('prod-tbody');
+    if (!list.length) {
+      tb.innerHTML=`<tr><td colspan="11"><div class="empty-state"><span>🍾</span>Nenhum produto encontrado.</div></td></tr>`;
+      return;
+    }
+
+    const badge = t => `badge-${t==='tinto'?'tinto':t==='branco'?'branco':t==='rose'?'rose':t==='espumante'?'espumante':'porto'}`;
+
+    tb.innerHTML = list.map((p,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td style="font-size:.82rem;color:var(--muted)">${p.code}</td>
+        <td><strong>${p.name}</strong></td>
+        <td><span class="badge ${badge(p.type)}">${p.type}</span></td>
+        <td style="font-size:.82rem">${p.body||'—'}</td>
+        <td style="font-size:.82rem">${p.region||'—'}</td>
+        <td style="font-size:.82rem">${p.grapes||'—'}</td>
+        <td><strong style="color:var(--success)">R$ ${Number(p.price).toFixed(2)}</strong></td>
+        <td style="font-size:.82rem">${p.priceBox?('R$ '+Number(p.priceBox).toFixed(2)):'—'}</td>
+        <td><span style="background:${p.status==='ativo'?'#d4edda':p.status==='inativo'?'#f8d7da':'#fff3cd'};padding:2px 9px;border-radius:50px;font-size:.75rem;font-weight:900">${p.status||'ativo'}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-info btn-sm" onclick="admin.editProduto('${p.id||p.code}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="admin.deleteProduto('${p.id||p.code}')">🗑️</button>
+        </td>
+      </tr>`).join('');
+  },
+
+  importProdCSV() {
+    const raw = document.getElementById('p-csv').value.trim();
+    if (!raw) { toast('Cole o CSV antes de importar.','error'); return; }
+
+    const lines = raw.split('\n').filter(l=>l.trim());
+    let list = store.get(KEYS.PROD);
+    if (!list.length) list=[...DEFAULT_WINES];
+    let count=0;
+
+    lines.forEach(line => {
+      const p=line.split(';').map(s=>s.trim());
+      if (!p[0] || !p[1] || !p[2] || !p[6]) return;
+      list.push({
+        id:store.uid(), code:p[0], name:p[1], type:p[2]||'tinto',
+        body:p[3]||'', region:p[4]||'', grapes:p[5]||'',
+        price:parseFloat(p[6])||0, priceBox:parseFloat(p[7])||0,
+        unitsBox:parseInt(p[8])||6, ml:parseInt(p[9])||750,
+        distId:'', status:p[10]||'ativo'
+      });
+      count++;
+    });
+
+    store.set(KEYS.PROD, list);
+    document.getElementById('p-csv').value='';
+    toast(`${count} produto(s) importado(s)!`);
+    this.renderProdutos();
+    this.renderStats();
+    app.populateSelects();
+    sales.populateSalesForm();
+  },
+
+  loadDefaults() {
+    if (!confirm('Restaurar os vinhos padrão? Isso substitui seus produtos atuais.')) return;
+    store.set(KEYS.PROD, DEFAULT_WINES);
+    toast('Vinhos padrão restaurados!');
+    this.renderProdutos();
+    this.renderStats();
+    app.populateSelects();
+    sales.populateSalesForm();
+  },
+
+  clearAll(type) {
+    const msg = type==='distributors' ? 'Apagar TODOS os distribuidores?' : (type==='products' ? 'Apagar TODOS os produtos?' : 'Apagar TODAS as vendas?');
+    if (!confirm(msg)) return;
+
+    const key = type==='distributors' ? KEYS.DIST : (type==='products' ? KEYS.PROD : KEYS.SALES);
+    store.set(key, []);
+
+    toast('Dados apagados!','error');
+
+    if (type==='distributors') {
+      this.renderDistribuidores();
+      this.populateDistSelect();
+    }
+
+    if (type==='products') {
+      this.renderProdutos();
+      app.populateSelects();
+    }
+
+    if (type==='sales') {
+      sales.renderTable();
+      reports.render();
+    }
+
+    sales.populateSalesForm();
+    this.renderStats();
+  }
+};
+
+/* ================================================
+   SALES
+   ================================================ */
+const sales = {
+  populateSalesForm() {
+    const distSel = document.getElementById('s-dist');
+    const prodSel = document.getElementById('s-prod');
+    if (!distSel || !prodSel) return;
+
+    const dists = getDistributors();
+    const prods = getProducts().filter(p => p.status !== 'inativo');
+
+    distSel.innerHTML = '<option value="">-- Selecione --</option>';
+    dists.forEach(d => {
+      const o = document.createElement('option');
+      o.value = d.id;
+      o.textContent = `${d.nome} (${d.cidade}/${d.estado})`;
+      distSel.appendChild(o);
+    });
+
+    prodSel.innerHTML = '<option value="">-- Selecione --</option>';
+    prods.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.id || p.code;
+      o.textContent = `${p.name} — R$ ${Number(p.price).toFixed(2)}`;
+      prodSel.appendChild(o);
+    });
+
+    // default date = today
+    const dateEl = document.getElementById('s-date');
+    if (dateEl && !dateEl.value) dateEl.value = reports.today();
+  },
+
+  clearForm() {
+    clearErrors('s-errors', ['s-dist','s-prod','s-qty','s-date']);
+    const dateEl = document.getElementById('s-date');
+    document.getElementById('s-dist').value = '';
+    document.getElementById('s-prod').value = '';
+    document.getElementById('s-qty').value = '1';
+    if (dateEl) dateEl.value = reports.today();
+  },
+
+  addFromForm() {
+    clearErrors('s-errors', ['s-dist','s-prod','s-qty','s-date']);
+
+    const ok = requireFields({
+      containerId: 's-errors',
+      rules: [
+        { id:'s-dist', label:'Distribuidor' },
+        { id:'s-prod', label:'Produto' },
+        { id:'s-qty',  label:'Quantidade', test: (v)=>Number(v) > 0 },
+        { id:'s-date', label:'Data' },
+      ]
+    });
+    if (!ok) return;
+
+    const distId = document.getElementById('s-dist').value;
+    const prodId = document.getElementById('s-prod').value;
+    const qty    = parseInt(document.getElementById('s-qty').value) || 1;
+    const date   = document.getElementById('s-date').value;
+
+    const dist = getDistributors().find(d => d.id === distId);
+    const prod = getProducts().find(p => (p.id===prodId || p.code===prodId));
+
+    if (!dist || !prod) {
+      toast('Distribuidor/Produto inválido.','error');
+      return;
+    }
+
+    const sale = {
+      id: store.uid(),
+      date, // yyyy-mm-dd
+      distributorId: distId,
+      distributorName: dist.nome,
+      productId: prod.id || prod.code,
+      productName: prod.name,
+      qty,
+      unitPrice: Number(prod.price) || 0
+    };
+
+    const list = getSales();
+    list.push(sale);
+    store.set(KEYS.SALES, list);
+
+    toast('Venda lançada!');
+    admin.renderStats();
+    this.renderTable();
+    reports.render();
+    this.clearForm();
+  },
+
+  deleteSale(id) {
+    if (!confirm('Remover este evento de venda?')) return;
+    const list = getSales().filter(s => s.id !== id);
+    store.set(KEYS.SALES, list);
+    toast('Venda removida.','error');
+    admin.renderStats();
+    this.renderTable();
+    reports.render();
+  },
+
+  renderTable() {
+    const tb = document.getElementById('sales-tbody');
+    if (!tb) return;
+    const list = [...getSales()].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0, 30);
+    if (!list.length) {
+      tb.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span>🧾</span>Nenhuma venda lançada ainda.</div></td></tr>`;
+      return;
+    }
+    tb.innerHTML = list.map(s => {
+      const total = s.qty * s.unitPrice;
+      return `
+        <tr>
+          <td>${s.date}</td>
+          <td>${s.distributorName || '—'}</td>
+          <td>${s.productName || '—'}</td>
+          <td><strong>${s.qty}</strong></td>
+          <td>R$ ${Number(s.unitPrice).toFixed(2)}</td>
+          <td><strong style="color:var(--success)">R$ ${total.toFixed(2)}</strong></td>
+          <td><button class="btn btn-danger btn-sm" onclick="sales.deleteSale('${s.id}')">🗑️</button></td>
+        </tr>`;
+    }).join('');
+  },
+
+  seedSample() {
+    const dists = getDistributors();
+    const prods = getProducts().filter(p => p.status !== 'inativo');
+
+    if (!dists.length || !prods.length) {
+      toast('Cadastre ao menos 1 distribuidor e 1 produto para gerar vendas.','error');
+      switchPage('admin');
+      switchAdmin(!dists.length ? 'distribuidores' : 'produtos');
+      return;
+    }
+
+    const n = 80;
+    const list = getSales();
+    for (let i=0;i<n;i++) {
+      const d = dists[Math.floor(Math.random()*dists.length)];
+      const p = prods[Math.floor(Math.random()*prods.length)];
+      const qty = 1 + Math.floor(Math.random()*6);
+      const date = reports.randomDateWithinDays(45);
+      list.push({
+        id: store.uid(),
+        date,
+        distributorId: d.id,
+        distributorName: d.nome,
+        productId: p.id || p.code,
+        productName: p.name,
+        qty,
+        unitPrice: Number(p.price) || 0
+      });
+    }
+
+    store.set(KEYS.SALES, list);
+    toast(`${n} vendas de exemplo geradas!`);
+    admin.renderStats();
+    this.populateSalesForm();
+    this.renderTable();
+    reports.render();
+  }
+};
+
+/* ================================================
+   REPORTS (Charts)
+   ================================================ */
+const reports = {
+  // date utils
+  today() {
+    const d = new Date();
+    return d.toISOString().slice(0,10);
+  },
+  daysAgo(n) {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return d.toISOString().slice(0,10);
+  },
+  randomDateWithinDays(n) {
+    const d = new Date();
+    d.setDate(d.getDate() - Math.floor(Math.random()*n));
+    return d.toISOString().slice(0,10);
+  },
+
+  ensureDefaults() {
+    const from = document.getElementById('r-from');
+    const to   = document.getElementById('r-to');
+    if (from && !from.value) from.value = this.daysAgo(30);
+    if (to && !to.value) to.value = this.today();
+    document.getElementById('r-metric').onchange = () => this.render();
+    document.getElementById('r-topn').onchange   = () => this.render();
+  },
+
+  filterSales(sales, from, to) {
+    // inclusive
+    return sales.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
+  },
+
+  topProducts(sales, topN=10, metric='qty') {
+    const map = new Map();
+    sales.forEach(s => {
+      const key = s.productId;
+      const prev = map.get(key) || { label: s.productName || key, qty:0, revenue:0 };
+      prev.qty += Number(s.qty)||0;
+      prev.revenue += (Number(s.qty)||0) * (Number(s.unitPrice)||0);
+      map.set(key, prev);
+    });
+    const arr = [...map.values()];
+    arr.sort((a,b) => (metric==='revenue'?b.revenue:b.qty) - (metric==='revenue'?a.revenue:a.qty));
+    return arr.slice(0, topN);
+  },
+
+  byDistributor(sales, metric='revenue') {
+    const map = new Map();
+    sales.forEach(s => {
+      const key = s.distributorId;
+      const prev = map.get(key) || { label: s.distributorName || key, qty:0, revenue:0 };
+      prev.qty += Number(s.qty)||0;
+      prev.revenue += (Number(s.qty)||0) * (Number(s.unitPrice)||0);
+      map.set(key, prev);
+    });
+    const arr = [...map.values()];
+    arr.sort((a,b)=> (metric==='revenue'?b.revenue:b.qty) - (metric==='revenue'?a.revenue:a.qty));
+    return arr;
+  },
+
+  render() {
+    const all = getSales();
+    const from = document.getElementById('r-from')?.value || this.daysAgo(30);
+    const to   = document.getElementById('r-to')?.value || this.today();
+    const metric = document.getElementById('r-metric')?.value || 'revenue';
+    const topN = parseInt(document.getElementById('r-topn')?.value || '10');
+
+    const data = this.filterSales(all, from, to);
+
+    // stats
+    const events = data.length;
+    const qty    = data.reduce((s,x)=>s+(Number(x.qty)||0),0);
+    const rev    = data.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.unitPrice)||0),0);
+    const avg    = events ? rev / events : 0;
+
+    const topProd = this.topProducts(data, 1, metric)[0];
+    const topDist = this.byDistributor(data, metric)[0];
+
+    document.getElementById('r-stat-events').textContent = events;
+    document.getElementById('r-stat-rev').textContent    = 'R$' + rev.toFixed(0);
+    document.getElementById('r-stat-qty').textContent    = qty;
+    document.getElementById('r-stat-avg').textContent    = 'R$' + avg.toFixed(0);
+    document.getElementById('r-stat-best').textContent   = topProd ? topProd.label.slice(0,22)+(topProd.label.length>22?'…':'') : '—';
+    document.getElementById('r-stat-dist').textContent   = topDist ? topDist.label.slice(0,22)+(topDist.label.length>22?'…':'') : '—';
+
+    // chart captions
+    const metricLabel = metric==='revenue' ? 'Receita (R$)' : 'Quantidade (un.)';
+    document.getElementById('chart1-sub').textContent = `${from} → ${to} · ${metricLabel}`;
+    document.getElementById('chart2-sub').textContent = `${from} → ${to} · Top ${topN} · ${metricLabel}`;
+
+    // chart 1
+    const distArr = this.byDistributor(data, metric).slice(0, 12);
+    const distLabels = distArr.map(x=>x.label);
+    const distValues = distArr.map(x=>metric==='revenue'?x.revenue:x.qty);
+    drawBarChart('chart-dist', distLabels, distValues, { metric });
+
+    // chart 2
+    const prodArr = this.topProducts(data, topN, metric);
+    const prodLabels = prodArr.map(x=>x.label);
+    const prodValues = prodArr.map(x=>metric==='revenue'?x.revenue:x.qty);
+    drawBarChart('chart-prod', prodLabels, prodValues, { metric });
+
+    // detail table
+    const tb = document.getElementById('r-sales-tbody');
+    const last = [...data].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0, 30);
+    if (!last.length) {
+      tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span>📉</span>Sem vendas no período. Gere vendas de exemplo ou lance manualmente no Admin.</div></td></tr>`;
+    } else {
+      tb.innerHTML = last.map(s => {
+        const total = s.qty * s.unitPrice;
+        return `
+          <tr>
+            <td>${s.date}</td>
+            <td>${s.distributorName || '—'}</td>
+            <td>${s.productName || '—'}</td>
+            <td><strong>${s.qty}</strong></td>
+            <td>R$ ${Number(s.unitPrice).toFixed(2)}</td>
+            <td><strong style="color:var(--success)">R$ ${total.toFixed(2)}</strong></td>
+          </tr>`;
+      }).join('');
+    }
+
+    // keep admin stats in sync
+    admin.renderStats();
+  }
+};
+
+/* ================================================
+   SIMPLE CANVAS BAR CHART
+   ================================================ */
+function drawBarChart(canvasId, labels, values, { metric='revenue' } = {}) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  // HiDPI handling
+  const parent = canvas.parentElement;
+  const w = Math.max(320, parent.clientWidth - 8);
+  const h = window.matchMedia('(max-width: 640px)').matches ? 240 : 280;
+
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(w * dpr);
+  canvas.height = Math.floor(h * dpr);
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  // padding
+  const padL = 42;
+  const padR = 14;
+  const padT = 12;
+  const padB = 54;
+
+  ctx.clearRect(0,0,w,h);
+
+  // background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,w,h);
+
+  const max = Math.max(1, ...values);
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
+  // grid
+  ctx.strokeStyle = '#eef1f4';
+  ctx.lineWidth = 1;
+  const gridLines = 4;
+  for (let i=0;i<=gridLines;i++) {
+    const y = padT + (plotH * i / gridLines);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(w-padR, y);
+    ctx.stroke();
+  }
+
+  // axes
+  ctx.strokeStyle = '#d7dde3';
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, padT+plotH);
+  ctx.lineTo(w-padR, padT+plotH);
+  ctx.stroke();
+
+  // bars
+  const n = labels.length || 1;
+  const gap = 8;
+  const barW = Math.max(10, (plotW - gap*(n-1)) / n);
+
+  for (let i=0;i<labels.length;i++) {
+    const v = values[i] || 0;
+    const bh = (v / max) * plotH;
+    const x = padL + i*(barW+gap);
+    const y = padT + (plotH - bh);
+
+    // bar
+    const grad = ctx.createLinearGradient(0, y, 0, y+bh);
+    grad.addColorStop(0, metric==='revenue' ? '#2C3E50' : '#722F37');
+    grad.addColorStop(1, metric==='revenue' ? '#3f5873' : '#9a3f4a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, barW, bh);
+
+    // value label
+    ctx.fillStyle = '#2C3E50';
+    ctx.font = '700 11px Helvetica Neue, Arial';
+    const txt = metric==='revenue' ? ('R$'+v.toFixed(0)) : String(Math.round(v));
+    ctx.fillText(txt, x, Math.max(12, y-6));
+
+    // x label
+    ctx.save();
+    ctx.translate(x + barW/2, padT+plotH + 10);
+    ctx.rotate(-0.45);
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '800 10px Helvetica Neue, Arial';
+    const label = (labels[i]||'').length>18 ? (labels[i].slice(0,18)+'…') : labels[i];
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
+  }
+
+  // y-axis labels
+  ctx.fillStyle = '#6c757d';
+  ctx.font = '800 10px Helvetica Neue, Arial';
+  for (let i=0;i<=gridLines;i++) {
+    const v = max * (1 - i/gridLines);
+    const y = padT + (plotH * i / gridLines);
+    const txt = metric==='revenue' ? ('R$'+v.toFixed(0)) : String(Math.round(v));
+    ctx.fillText(txt, 6, y+4);
+  }
+}
+
+window.addEventListener('resize', () => {
+  // re-render charts if on reports
+  if (document.getElementById('page-reports')?.classList.contains('active')) reports.render();
+});
+
+/* ================================================
+   INIT
+   ================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Sommelier
+  app.populateSelects();
+
+  // Admin
+  admin.renderStats();
+  admin.renderDistribuidores();
+  admin.renderProdutos();
+  admin.populateDistSelect();
+  sales.populateSalesForm();
+  sales.renderTable();
+
+  // Reports default filters
+  reports.ensureDefaults();
+
+  // Import file listener
+  const file = document.getElementById('import-file');
+  if (file) {
+    file.addEventListener('change', async () => {
+      if (!file.files?.length) return;
+      const text = await file.files[0].text();
+      document.getElementById('import-text').value = text;
+      toast('Arquivo carregado. Clique em “Importar JSON”.');
+    });
+  }
+});
 </script>
 </body>
 </html>
