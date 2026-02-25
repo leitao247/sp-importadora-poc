@@ -1,0 +1,51 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.next/
+out/
+build/
+
+# Variáveis de ambiente (NUNCA versionar!)
+.env
+.env.local
+.env.*.local
+
+# Prisma
+apps/api/prisma/migrations/*.sql
+
+# Turbo
+.turbo/
+
+# Cobertura de testes
+coverage/
+*.lcov
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# IDEs e editores
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Docker volumes (se local)
+postgres-data/
+redis-data/
+
+# Dados brutos (xlsx originais) – usar LFS se necessário
+# data/raw/
