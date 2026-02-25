@@ -1,0 +1,126 @@
+import { PrismaClient } from "@prisma/client";
+
+export async function seedDistributors(prisma: PrismaClient): Promise<number> {
+  const distributors = [
+    {
+      code: "DISTR_PR_001",
+      name: "Distribuidora Curitiba Premium",
+      cep: "80010000",
+      lat: -25.4284,
+      lng: -49.2733,
+      serviceRadiusKm: 100,
+      priority: 200,
+      emitsNf: true,
+      apiKey: "dev-distr-key-pr001",
+    },
+    {
+      code: "DISTR_SP_001",
+      name: "Distribuidora São Paulo Capital",
+      cep: "01310100",
+      lat: -23.5613,
+      lng: -46.6562,
+      serviceRadiusKm: 120,
+      priority: 190,
+      emitsNf: true,
+      apiKey: "dev-distr-key-sp001",
+    },
+    {
+      code: "DISTR_RJ_001",
+      name: "Distribuidora Rio de Janeiro",
+      cep: "20040020",
+      lat: -22.9068,
+      lng: -43.1729,
+      serviceRadiusKm: 100,
+      priority: 180,
+      emitsNf: true,
+      apiKey: "dev-distr-key-rj001",
+    },
+    {
+      code: "DISTR_SC_001",
+      name: "Distribuidora Florianópolis",
+      cep: "88010000",
+      lat: -27.5954,
+      lng: -48.5480,
+      serviceRadiusKm: 150,
+      priority: 170,
+      emitsNf: true,
+      apiKey: "dev-distr-key-sc001",
+    },
+    {
+      code: "DISTR_RS_001",
+      name: "Distribuidora Porto Alegre",
+      cep: "90010000",
+      lat: -30.0277,
+      lng: -51.2287,
+      serviceRadiusKm: 150,
+      priority: 170,
+      emitsNf: true,
+      apiKey: "dev-distr-key-rs001",
+    },
+    {
+      code: "DISTR_MG_001",
+      name: "Distribuidora Belo Horizonte",
+      cep: "30130010",
+      lat: -19.9167,
+      lng: -43.9345,
+      serviceRadiusKm: 130,
+      priority: 160,
+      emitsNf: true,
+      apiKey: "dev-distr-key-mg001",
+    },
+    {
+      code: "DISTR_SP_002",
+      name: "Distribuidora Campinas Interior SP",
+      cep: "13010000",
+      lat: -22.9099,
+      lng: -47.0626,
+      serviceRadiusKm: 100,
+      priority: 150,
+      emitsNf: true,
+      apiKey: "dev-distr-key-sp002",
+    },
+    {
+      code: "DISTR_BA_001",
+      name: "Distribuidora Salvador",
+      cep: "40010000",
+      lat: -12.9714,
+      lng: -38.5014,
+      serviceRadiusKm: 120,
+      priority: 140,
+      emitsNf: true,
+      apiKey: "dev-distr-key-ba001",
+    },
+  ];
+
+  let count = 0;
+  for (const d of distributors) {
+    await prisma.distributor.upsert({
+      where: { code: d.code },
+      update: {
+        name: d.name,
+        cep: d.cep,
+        lat: d.lat,
+        lng: d.lng,
+        serviceRadiusKm: d.serviceRadiusKm,
+        priority: d.priority,
+        emitsNf: d.emitsNf,
+        apiKey: d.apiKey,
+        active: true,
+      },
+      create: {
+        code: d.code,
+        name: d.name,
+        cep: d.cep,
+        lat: d.lat,
+        lng: d.lng,
+        serviceRadiusKm: d.serviceRadiusKm,
+        priority: d.priority,
+        emitsNf: d.emitsNf,
+        apiKey: d.apiKey,
+        active: true,
+      },
+    });
+    count++;
+  }
+  return count;
+}

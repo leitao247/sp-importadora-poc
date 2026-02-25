@@ -1,0 +1,15 @@
+# Owners padrão
+* @leitao247
+
+# API
+apps/api/** @leitao247
+
+# Web (Next.js)
+apps/web/** @leitao247
+
+# Packages compartilhados
+packages/** @leitao247
+
+# Infraestrutura
+infra/** @leitao247
+.github/** @leitao247
